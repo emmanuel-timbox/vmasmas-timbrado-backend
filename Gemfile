@@ -42,6 +42,11 @@ gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
+# Use mysql as the database for Active Record
+gem "mysql2", "~> 0.5"
+
+gem 'figaro'
+
 # Use Sass to process CSS
 # gem "sassc-rails"
 
