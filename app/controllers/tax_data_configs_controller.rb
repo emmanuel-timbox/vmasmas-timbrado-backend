@@ -7,7 +7,7 @@ class TaxDataConfigsController < ApplicationController
     begin
       result = Emitter.get_data_emmiter(params[:id])
       code = result.nil? ? 500 : 200
-      render json: {code: code, data: result}
+      render json: { code: code, data: result }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
@@ -27,7 +27,18 @@ class TaxDataConfigsController < ApplicationController
   end
 
   def update
-
+    begin
+      emitter = Emitter.update_emitter(params)
+      code = 500
+      data = nil
+      if emitter[:save_data]
+        code = 200
+        data = show_data(emitter[:result])
+      end
+      render json: { code: code, data: data }
+    rescue Exception => e
+      render json: { message: e.message, code: 500 }
+    end
   end
 
   def destroy
@@ -39,7 +50,7 @@ class TaxDataConfigsController < ApplicationController
         data = show_data(emitter[:result])
         code = 200
       end
-      render json: {  code: code, data: data }
+      render json: { code: code, data: data }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end

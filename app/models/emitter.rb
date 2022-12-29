@@ -29,13 +29,13 @@ class Emitter < ApplicationRecord
   end
 
   def self.update_emitter(data_emitter)
-    return Emitter.find_by(slug: data_emitter[:slug])
-                  .update({
-                            bussiness_name: data_emitter[:bussinessName],
-                            rfc: data_emitter[:rfc],
-                            expedition_place: data_emitter[:expeditionPlace],
-                            tax_regime: data_emitter[:taxRegimen]
-                          })
+    data = Emitter.find_by(slug: data_emitter[:id])
+    data[:bussiness_name] = data_emitter[:bussinessName]
+    data[:rfc] = data_emitter[:rfc]
+    data[:expedition_place] = data_emitter[:expeditionPlace]
+    data[:tax_regime] = data_emitter[:taxRegime]
+    save_data = data.save!
+    return { save_data: save_data, result: data}
   end
 
 end
