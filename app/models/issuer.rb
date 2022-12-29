@@ -1,2 +1,0 @@
-class Issuer < ApplicationRecord
-end
