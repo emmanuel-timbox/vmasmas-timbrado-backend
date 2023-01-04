@@ -6,5 +6,9 @@ Rails.application.routes.draw do
   # root "articles#index"
 
   resources :tax_data_configs
+  resources :receiver_configs
+
+
+  # get 'prueba-ruta', to: 'pruebas(controlado)#prueba(metodo)'
 
 end
