@@ -7,8 +7,8 @@ Rails.application.routes.draw do
 
   resources :tax_data_configs
   resources :receiver_configs
-
-
-  # get 'prueba-ruta', to: 'pruebas(controlado)#prueba(metodo)'
+  resources :create_xml do
+    get "show-receivers", on: :member
+  end
 
 end
