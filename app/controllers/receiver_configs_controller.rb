@@ -59,9 +59,12 @@ class ReceiverConfigsController < ApplicationController
     private def show_data(data)
       return {
         rfc: data[:rfc],
+        cfdi_use: data[:cfdi_use],
         bussiness_name: data[:bussiness_name],
-        tax_regime: data[:tax_regime],
-        expedition_place: data[:expedition_place],
+        receiving_tax_domicile: data[:tax_regime],
+        recipient_tax_regimen: data[:expedition_place],
+        tax_id_number: data[:tax_id_number],
+        tax_residence: data[:tax_residence],
         status: data[:status],
         slug: data[:slug]
       }
