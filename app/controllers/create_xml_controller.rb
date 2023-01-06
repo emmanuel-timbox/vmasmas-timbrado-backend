@@ -39,7 +39,13 @@ class CreateXmlController < ApplicationController
 
   def receivers
     begin
-
+      begin
+        result = Receiver.get_data_receiver(params[:id])
+        code = result.nil? ? 500 : 200
+        render json: { code: code, data: result }
+      rescue Exception => e
+        render json: { message: e.message, code: 500 }
+      end
     rescue => e
 
     end
