@@ -1,0 +1,4 @@
+class Tax < ApplicationRecord
+
+
+end

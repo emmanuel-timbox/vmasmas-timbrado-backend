@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   resources :receiver_configs
   resources :concept_configs
   resources :create_xml do
-    get "show-receivers", on: :member
+    get "receivers_show", on: :member
   end
 
 end
