@@ -19,7 +19,7 @@ class Concept < ApplicationRecord
     end
   
     def self.insert_concept(params)
-      puts params
+     
       data = {
         # user_id: Concept.find_by(slug: params[:slugConcept]).id,
         user_id: 2,
@@ -37,7 +37,6 @@ class Concept < ApplicationRecord
     
   
     def self.update_concept(data_concept)
-      puts data_concept
       data = Concept.find_by(slug: data_concept[:id])
       data[:product_key] = data_concept[:product_key]
       data[:id_number] = data_concept[:id_number]

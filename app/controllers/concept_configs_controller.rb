@@ -15,9 +15,7 @@ class ConceptConfigsController < ApplicationController
   
     def create
       begin
-        puts '----------------------------------------a'
-      puts params
-      puts '----------------------------------------d'
+
         data = Concept.insert_concept(params)
         code = data.nil? ? 500 : 200
         unless data.nil?
