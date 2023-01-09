@@ -7,6 +7,7 @@ Rails.application.routes.draw do
 
   resources :tax_data_configs
   resources :receiver_configs
+  resources :concept_configs
   resources :create_xml do
     get "show-receivers", on: :member
   end
