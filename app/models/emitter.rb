@@ -3,17 +3,16 @@ class Emitter < ApplicationRecord
 
   def self.get_data_emmiter(slug_user)
     return Emitter.where(user_id: User.find_by(slug: slug_user))
-      .select(:bussiness_name, :rfc, :expedition_place,
-              :tax_regime, :status, :slug)
+                  .select(:bussiness_name, :rfc, :expedition_place,
+                          :tax_regime, :status, :slug)
   end
 
   def self.get_data_emmiter_xml(slug_user)
     return Emitter.where(user_id: User.find_by(slug: slug_user), status: 1)
-      .select("emitters.bussiness_name , emitters.rfc,
+                  .select("emitters.bussiness_name , emitters.rfc,
        emitters.expedition_place, emitters.tax_regime,
        emitters.slug, certificates.slug as slug_certificate,
-       certificates.certificate_number")
-      .left_joins(:certificate_as_emitter)
+       certificates.certificate_number").left_joins(:certificate_as_emitter)
   end
 
   def self.insert_people_tax(params)
