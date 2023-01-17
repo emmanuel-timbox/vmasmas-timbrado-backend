@@ -1,4 +1,4 @@
-class TaxDataConfigsController < ApplicationController
+class EmitterConfigsController < ApplicationController
 
   def index
   end
