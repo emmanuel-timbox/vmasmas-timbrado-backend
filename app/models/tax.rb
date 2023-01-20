@@ -15,9 +15,10 @@ class Tax < ApplicationRecord
         status: 1,
         slug: EncryptData.encrypt("tax_result")
       }
-      return Tax.create(data)
+      data = Tax.create(data)
+      return { message: 'Este no se encuetra registrado este dato',  data: data }
     else
-
+      return { message: 'Ya se encuentra registrado este Impuesto', data: nil }
     end
 
   end
@@ -26,10 +27,16 @@ class Tax < ApplicationRecord
     return Tax.find_by(slug: slug).destroy
   end
 
+  def self.update_tax(params)
+
+  end
+
   def self.exist_tax(params)
     exit = false
-    data = Tax.where(user_id: User.find_by(slug: params[:slugUser]).id,
-                     tax_name: params[:taxName], tax_rate: params[:taxRate])
+    data = Tax.where(user_id: User.find_by(slug: params[:slugUser]).id)
+              .where(tax_name: params[:taxName])
+              .where(tax_rate: params[:taxRate])
+
     exit = true if data.count > 0
     return exit
   end

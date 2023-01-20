@@ -16,12 +16,13 @@ class TaxConfigsController < ApplicationController
     begin
       # hay que realizar la validacion que no se encuentre registrado el mismo
       # impuesto con el mismo valor.
+      code = 500
       result = Tax.insert_tax(params)
-      code = result.nil? ? 500 : 200
-      unless result.nil?
-        data = data_formatter(result)
+      unless result[:data].nil?
+        code = 200
+        data = data_formatter(result[:data])
       end
-      render json: { code: code, data: data }
+      render json: { code: code, data: data, message: result[:message] }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
