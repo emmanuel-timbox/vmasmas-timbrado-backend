@@ -16,11 +16,10 @@ class Tax < ApplicationRecord
         slug: EncryptData.encrypt("tax_result")
       }
       data = Tax.create(data)
-      return { message: 'Este no se encuetra registrado este dato',  data: data }
+      return { message: 'Este no se encuetra registrado este dato.', data: data }
     else
-      return { message: 'Ya se encuentra registrado este Impuesto', data: nil }
+      return { message: 'Ya se encuentra registrado.', data: nil }
     end
-
   end
 
   def self.update_tax_status(slug)
@@ -28,7 +27,14 @@ class Tax < ApplicationRecord
   end
 
   def self.update_tax(params)
-
+    unless exit_tax_for_update(params)
+      tax = Tax.find_by(slug: params[:slugTax])
+      tax.tax_rate = params[:taxRate]
+      save_data = tax.save!
+      return { save_data: save_data, result: tax, message: 'Este data no esta registrado' }
+    else
+      return { message: 'Ya se encuentra registrado.', save_data: false}
+    end
   end
 
   def self.exist_tax(params)
@@ -36,7 +42,16 @@ class Tax < ApplicationRecord
     data = Tax.where(user_id: User.find_by(slug: params[:slugUser]).id)
               .where(tax_name: params[:taxName])
               .where(tax_rate: params[:taxRate])
+    exit = true if data.count > 0
+    return exit
+  end
 
+  def self.exit_tax_for_update(params)
+    exit = false
+    data = Tax.where(user_id: User.find_by(slug: params[:slugUser]).id)
+              .where(tax_name: params[:taxName])
+              .where(tax_rate: params[:taxRate])
+              .where.not(slug: params[:slugTax])
     exit = true if data.count > 0
     return exit
   end

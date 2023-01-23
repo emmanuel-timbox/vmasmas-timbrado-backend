@@ -30,7 +30,14 @@ class TaxConfigsController < ApplicationController
 
   def update
     begin
-
+      tax = Tax.update_tax(params)
+      code = 500
+      data = nil
+      if tax[:save_data]
+        code = 200
+        data = data_formatter(tax[:result])
+      end
+      render json: { code: code, data: data, message: tax[:message]}
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
