@@ -15,13 +15,11 @@ class ConceptConfigsController < ApplicationController
 
   def create
     begin
-
       data = Concept.insert_concept(params)
       code = data.nil? ? 500 : 200
       unless data.nil?
         data = show_data(data)
       end
-      byebug
       render json: { code: code, data: data }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
