@@ -6,7 +6,9 @@ Rails.application.routes.draw do
   resources :tax_configs
   resources :certificate
   resources :create_xml do
-    get "receivers_show", on: :member
+    get 'show_receivers', on: :member
+    get 'show_concepts', on: :member
+    get 'show_taxes', on: :member
   end
 
 end
