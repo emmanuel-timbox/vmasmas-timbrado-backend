@@ -51,11 +51,10 @@ class Receiver < ApplicationRecord
 
   def self.exist_rfc(rfc)
     exist = false
-    receiver = Receiver.find_by(rfc: rfc)
-    exit = true unless receiver.nil?
-    return exist
+    receiver = Receiver.where(rfc: rfc)
+    exist = true if receiver.count > 0
+    return { exist: exist, data: receiver }
   end
-
 
   def self.insert_receiver_excel(params)
     data = {
