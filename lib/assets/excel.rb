@@ -9,70 +9,59 @@ class Excel
     # transaccion
     @general.drop(1).each_with_index do |val, index|
 
-      byebug
       receiver = {
-        rfc: val[1],
-        bussiness_name: val[19],
-        cfdi_use: val[20],
-        receiving_tax_domicile: val[21],
-        recipient_tax_regimen: val[22],
-        tax_id_number: val[23],
-        tax_residence: val[24],
-
+        rfc: val[2],
+        bussiness_name: val[20],
+        cfdi_use: val[21],
+        receiving_tax_domicile: val[22],
+        recipient_tax_regimen: val[23],
+        tax_id_number: val[24],
+        tax_residence: val[25],
       }
 
       data_nomina = {
-        curp: val[0],
-        rfc: val[1],
-        social_security_number: val[2],
-        work_start_date: val[3],
-        antiquity: val[4],
-        type_contract: val[5],
-        unionized: val[6],
-        type_working_day:val[7],
-        regime_type:val[8],
-        employee_number:val[9],
-        departament:val[10],
-        put: val[11],
-        risk_put:val[12],
-        payment_frequency:val[13],
-        banck:val[14],
-        banck_account:val[15],
-        base_salary:val[16],
-        daily_salary:val[17],
-        federative_entity_key:val[18]
+        curp: val[1],
+        rfc: val[2],
+        social_security_number: val[3],
+        work_start_date: val[4],
+        antiquity_e: val[5],
+        type_contract: val[6],
+        unionized: val[7],
+        type_working_day:val[8],
+        regime_type:val[9],
+        employee_number:val[10],
+        departament:val[11],
+        put: val[12],
+        risk_put_e:val[13],
+        payment_frequency:val[14],
+        banck:val[15],
+        banck_account:val[16],
+        base_salary:val[17],
+        daily_salary:val[18],
+        federative_entity_key:val[19]
+      }
+      rfcReceptor = {
+        rfc_recep: val[0]
       }
 
-      exist = Receiver.exist_rfc([1])
+      # hay que tomar el id del emisor
+      emitter_data = Emitter.rfc_recep()
+      byebug
+      exist = Receiver.exist_rfc(val[2])
       # existcurp = Receiver.exist_curp ([0])
 
       if exist
-        # solo se tiene que guardar los de nomina
+        # si exist el rfc solo se tiene que guardar los de nomina
         employee = Employee.insert_employee(data_nomina)
         unless employee.nil?
           result.push(employee)
         end
 
       else
-        #vas a guar el receptor y los valore de nomina
-        employee = Employee.insert_employee(data_nomina)
-        unless employee.nil?
-          result.push(employee)
-        end
+        #si no existe vas a guar el receptor y los valore de nomina
+
 
       end
-
-      # result[index] = data_nomina
-
-    #   if receiver.nil?
-    #
-    #
-    #   end
-    # else
-    #
-    #   end
-
-
 
 
     end

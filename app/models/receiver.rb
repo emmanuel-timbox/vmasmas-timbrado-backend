@@ -48,6 +48,7 @@ class Receiver < ApplicationRecord
     return { save_data: save_data, result: data }
   end
 
+
   def self.exist_rfc(rfc)
     exist = false
     receiver = Receiver.find_by(rfc: rfc)
@@ -58,7 +59,7 @@ class Receiver < ApplicationRecord
 
   def self.insert_receiver_excel(params)
     data = {
-      # issuer_id: Emitter.find_by(slug: params[:slugEmitter]).id,
+      issuer_id: Emitter.find_by(slug: params[:slugEmitter]).id,
       rfc: params[:rfc],
       bussiness_name: params[:bussinessName],
       cfdi_use: params[:cfdiUse],
@@ -67,7 +68,7 @@ class Receiver < ApplicationRecord
       tax_id_number: params[:taxIdNumber],
       tax_residence: params[:tax_residence],
       status: 1,
-      # slug: EncryptData.encrypt('receiver')
+      slug: EncryptData.encrypt('receiver')
     }
     return Receiver.create(data)
   end
