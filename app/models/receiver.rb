@@ -28,7 +28,7 @@ class Receiver < ApplicationRecord
   end
 
   def self.update_status_receiver(slug)
-    receiver = Receiver.find_by1(slug: slug)
+    receiver = Receiver.find_by(slug: slug)
     status_init = receiver[:status]
     receiver.status = 0 if status_init == 1
     receiver.status = 1 if status_init == 0
@@ -48,7 +48,7 @@ class Receiver < ApplicationRecord
     return { save_data: save_data, result: data }
   end
 
-
+  byebug
   def self.exist_rfc(rfc)
     exist = false
     receiver = Receiver.where(rfc: rfc)

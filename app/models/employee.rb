@@ -1,8 +1,10 @@
 class Employee < ApplicationRecord
-
-
-
-
+  byebug
+  def self.get_data_employee(slug_user)
+    byebug
+    return Employee.where(user_id: User.find_by(slug: slug_user).id)
+                  .select( :rfc )
+  end
   def self.insert_employee(params)
     data = {
       rfc: params[:rfc],
@@ -24,9 +26,6 @@ class Employee < ApplicationRecord
       base_salary: params[:base_salary],
       daily_salary: params[:daily_salary],
       federative_entity_key: params[:federative_entity_key],
-
-
-
     }
     return Employee.create(data)
 

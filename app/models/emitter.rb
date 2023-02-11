@@ -46,10 +46,4 @@ class Emitter < ApplicationRecord
     save_data = data.save!
     return { save_data: save_data, result: data }
   end
-
-  def self.rfc_recep(rfc)
-    data = Emitter.find_by(rfc: data_emitter[:id])
-    return data
-  end
-
 end

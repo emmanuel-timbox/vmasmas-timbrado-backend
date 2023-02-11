@@ -2,7 +2,7 @@ class Excel
 
   require 'roo'
 
-  def self. readExcel(array_sheets)
+  def self. readExcel(array_sheets, user_slug)
     result = []
     @general = array_sheets[0]
 
@@ -10,7 +10,7 @@ class Excel
     @general.drop(1).each_with_index do |val, index|
 
       receiver = {
-        rfc: val[2],
+        rfc: val[0],
         bussiness_name: val[20],
         cfdi_use: val[21],
         receiving_tax_domicile: val[22],
@@ -18,11 +18,12 @@ class Excel
         tax_id_number: val[24],
         tax_residence: val[25],
         status: 1,
-        have_payroll: 1,
+        have_payroll: 0,
         slug: EncryptData.encrypt('receiver-nomina')
       }
 
       data_nomina = {
+        user_id: User.find_by(slug: user_slug).id,
         curp: val[1],
         rfc: val[2],
         social_security_number: val[3],
@@ -42,18 +43,16 @@ class Excel
         base_salary:val[17],
         daily_salary:val[18],
         federative_entity_key:val[19],
+        status: 1,
         slug: EncryptData.encrypt('employee')
       }
 
-      receiver_exist = Receiver.exist_rfc(val[2])
-      byebug
+      receiver_exist = Receiver.exist_rfc(val[0])
+
       if receiver_exist[:exist]
         data = Employee.create(data_nomina)
-
         result.push(data) unless data.nil?
-
       else
-
         data_receiver = Receiver.create(receiver)
         unless data_receiver.nil?
           data_employee = Employee.create(data_nomina)

@@ -6,7 +6,10 @@ class EmployeController<ApplicationController
 
   def show
     begin
-
+      byebug
+      result = Employee.get_data_employee(params[:id])
+      code = result.nil? ? 500 : 200
+      render json: { code: code, data: result }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
@@ -23,7 +26,7 @@ class EmployeController<ApplicationController
         array_sheets[index] = Roo::Spreadsheet.open(file_excel).sheet(name)
       end
       byebug
-      data_excel = Excel.readExcel(array_sheets)
+      data_excel = Excel.readExcel(array_sheets, params[:slug])
       render json: {  code: 200 }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
