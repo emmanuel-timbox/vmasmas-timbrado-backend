@@ -48,7 +48,7 @@ class Receiver < ApplicationRecord
     return { save_data: save_data, result: data }
   end
 
-  byebug
+
   def self.exist_rfc(rfc)
     exist = false
     receiver = Receiver.where(rfc: rfc)

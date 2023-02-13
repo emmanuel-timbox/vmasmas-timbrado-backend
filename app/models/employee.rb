@@ -1,7 +1,7 @@
 class Employee < ApplicationRecord
-  byebug
+
   def self.get_data_employee(slug_user)
-    byebug
+
     return Employee.where(user_id: User.find_by(slug: slug_user).id)
                   .select( :rfc )
   end
