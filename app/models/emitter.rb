@@ -1,6 +1,5 @@
 class Emitter < ApplicationRecord
   has_many :certificate_as_emitter, inverse_of: :emitter_as_certficate, foreign_key: :emitter_id, class_name: 'Certificate'
-
   def self.get_data_emmiter(slug_user)
     return Emitter.where(user_id: User.find_by(slug: slug_user))
                   .select(:bussiness_name, :rfc, :expedition_place,

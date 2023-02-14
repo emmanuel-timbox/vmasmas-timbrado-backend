@@ -3,7 +3,10 @@ class Employee < ApplicationRecord
   def self.get_data_employee(slug_user)
 
     return Employee.where(user_id: User.find_by(slug: slug_user).id)
-                  .select( :rfc )
+                   .select( :rfc,:curp,:social_security_number, :work_start_date, :antiquity, :type_contract,
+                            :unionized, :type_working_day, :regime_type,:employee_number, :departament, :risk_put,:put,
+                            :payment_frequency, :banck, :banck_account, :base_salary, :daily_salary, :federative_entity_key,
+                            :slug )
   end
   def self.insert_employee(params)
     data = {
@@ -31,6 +34,13 @@ class Employee < ApplicationRecord
 
   end
 
+
+  def self.exist_rfc(rfc)
+    exist = false
+    receiver = Employee.where(rfc: rfc)
+    exist = true if receiver.count > 0
+    return { exist: exist, data: receiver }
+  end
 
   # def self.exist_curp(curp)
   #   exist = false

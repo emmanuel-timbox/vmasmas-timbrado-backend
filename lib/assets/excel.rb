@@ -2,7 +2,7 @@ class Excel
 
   require 'roo'
 
-  def self. readExcel(array_sheets, user_slug)
+  def self.readExcel(array_sheets, user_slug)
     result = []
     @general = array_sheets[0]
 
@@ -47,6 +47,7 @@ class Excel
         slug: EncryptData.encrypt('employee')
       }
 
+      receiver_existEmployees = Employee.exist_rfc(val[0])
       receiver_exist = Receiver.exist_rfc(val[0])
 
       if receiver_exist[:exist]
