@@ -10,6 +10,7 @@ Rails.application.routes.draw do
     get 'show_receivers', on: :member
     get 'show_concepts', on: :member
     get 'show_taxes', on: :member
+    post 'validate_key', on: :member
   end
 
 end
