@@ -1,13 +1,13 @@
 class Employee < ApplicationRecord
-
   def self.get_data_employee(slug_user)
 
     return Employee.where(user_id: User.find_by(slug: slug_user).id)
                    .select( :rfc,:curp,:social_security_number, :work_start_date, :antiquity, :type_contract,
                             :unionized, :type_working_day, :regime_type,:employee_number, :departament, :risk_put,:put,
                             :payment_frequency, :banck, :banck_account, :base_salary, :daily_salary, :federative_entity_key,
-                            :slug )
+                            :slug)
   end
+
   def self.insert_employee(params)
     data = {
       rfc: params[:rfc],
@@ -31,19 +31,17 @@ class Employee < ApplicationRecord
       federative_entity_key: params[:federative_entity_key],
     }
     return Employee.create(data)
-
   end
-
 
   def self.exist_rfc(rfc)
     exist = false
-    receiver = Employee.where(rfc: rfc)
-    exist = true if receiver.count > 0
-    return { exist: exist, data: receiver }
+    employee = Employee.where(rfc: rfc)
+    exist = true if employee.count > 0
+    return { exist: exist, data: employee }
   end
 
-  def self.update_employee(data_employee)
 
+  def self.update_employee(data_employee)
     data = Employee.find_by(slug: data_employee[:id])
     data[:curp] = data_employee[:curp]
     data[:rfc] = data_employee[:rfc]
@@ -64,14 +62,8 @@ class Employee < ApplicationRecord
     data[:base_salary] = data_employee[:base_salary]
     data[:daily_salary] = data_employee[:daily_salary]
     data[:federative_entity_key] = data_employee[:federative_entity_key]
-
     save_data = data.save!
     return { save_data: save_data, result: data }
   end
-
-
-
-
-
 
 end

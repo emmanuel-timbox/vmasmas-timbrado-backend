@@ -17,7 +17,7 @@ class EmployeController<ApplicationController
   def update
     begin
       employee = Employee.update_employee(params)
-      code = 500
+      code = 200
       data = nil
       if employee[:save_data]
         code = 200
@@ -44,6 +44,30 @@ class EmployeController<ApplicationController
     end
   end
 
+  private def show_data(data)
+    return {
+    rfc: data[:rfc],
+      curp: data[:curp],
+      social_security_number: data[:social_security_number],
+      work_start_date: data[:work_start_date],
+      antiquity: data[:antiquity_e],
+      type_contract: data[:type_contract],
+      unionized: data[:unionized],
+      type_working_day: data[:type_working_day],
+      regime_type: data[:regime_type],
+      employee_number: data[:employee_number],
+      departament: data[:departament],
+      risk_put: data[:risk_put_e],
+      put: data[:put],
+      payment_frequency: data[:payment_frequency],
+      banck: data[:banck],
+      banck_account: data[:banck_account],
+      base_salary: data[:base_salary],
+      daily_salary: data[:daily_salary],
+      federative_entity_key: data[:federative_entity_key],
+      slug: data[:slug]
+    }
+  end
 
   def destroy
     begin

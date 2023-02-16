@@ -31,38 +31,44 @@ class Excel
         antiquity: val[5],
         type_contract: val[6],
         unionized: val[7],
-        type_working_day:val[8],
-        regime_type:val[9],
-        employee_number:val[10],
-        departament:val[11],
+        type_working_day: val[8],
+        regime_type: val[9],
+        employee_number: val[10],
+        departament: val[11],
         put: val[12],
-        risk_put:val[13],
-        payment_frequency:val[14],
-        banck:val[15],
-        banck_account:val[16],
-        base_salary:val[17],
-        daily_salary:val[18],
-        federative_entity_key:val[19],
+        risk_put: val[13],
+        payment_frequency: val[14],
+        banck: val[15],
+        banck_account: val[16],
+        base_salary: val[17],
+        daily_salary: val[18],
+        federative_entity_key: val[19],
         status: 1,
         slug: EncryptData.encrypt('employee')
       }
 
-      receiver_existEmployees = Employee.exist_rfc(val[0])
+      employee_exist = Employee.exist_rfc(val[2])
       receiver_exist = Receiver.exist_rfc(val[0])
 
       if receiver_exist[:exist]
-        data = Employee.create(data_nomina)
-        result.push(data) unless data.nil?
+        # receptor existe mete los datos a nomina
+
+        unless employee_exist[:exist]
+          data = Employee.create(data_nomina)
+          result.push(data) unless data.nil?
+        end
       else
+        # si no existe ambos se receptor y nomina
         data_receiver = Receiver.create(receiver)
         unless data_receiver.nil?
+          if employee_exist[:exist]
           data_employee = Employee.create(data_nomina)
-          unless data_employee.nil?
-            receiver.merge(data_nomina)
-            result.push(data_receiver)
+            unless data_employee.nil?
+              receiver.merge(data_nomina)
+              result.push(data_receiver)
+            end
           end
         end
-
       end
 
     end
