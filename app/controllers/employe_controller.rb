@@ -14,6 +14,20 @@ class EmployeController<ApplicationController
     end
   end
 
+  def update
+    begin
+      employee = Employee.update_employee(params)
+      code = 500
+      data = nil
+      if employee[:save_data]
+        code = 200
+        data = show_data(employee[:result])
+      end
+      render json: { code: code, data: data }
+    rescue Exception => e
+      render json: { message: e.message, code: 500 }
+    end
+  end
   def create
     begin
       file_excel = params[:fileserexcel]
@@ -30,12 +44,6 @@ class EmployeController<ApplicationController
     end
   end
 
-  def update
-    begin
-    rescue Exception => e
-      render json: { message: e.message, code: 500 }
-    end
-  end
 
   def destroy
     begin
