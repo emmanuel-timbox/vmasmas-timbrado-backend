@@ -15,7 +15,8 @@ class CreateXmlController < ApplicationController
 
   def create
     begin
-      byebug
+      cfdi = CfdiTools.processed_cfdi(params)
+      render json: cfdi
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
@@ -23,7 +24,6 @@ class CreateXmlController < ApplicationController
 
   def update
     begin
-
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
@@ -49,7 +49,7 @@ class CreateXmlController < ApplicationController
 
   def show_concepts
     begin
-      result = Concept.get_data_concept(params[:id])
+      result = Concept.get_data_concept_xml(params[:id])
       code = result.nil? ? 500 : 200
       render json: { code: code, data: result }
     rescue Exception => e

@@ -6,6 +6,12 @@ class Concept < ApplicationRecord
                           :description, :status, :tax_object, :slug)
   end
 
+  def self.get_data_concept_xml(slug)
+    return Concept.where(user_id: User.find_by(slug: slug).id, status: 1)
+                  .select(:product_key, :id_number, :unit_key,  :unit,
+                          :description, :status, :tax_object, :slug)
+  end
+
   def self.insert_concept(params)
     data = {
       user_id: User.find_by(slug: params[:slugUser]).id,
