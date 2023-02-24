@@ -23,7 +23,7 @@ class XmlFile < ApplicationRecord
 
   def self.select_xmls(slug_user)
     return XmlFile.where(user_id: User.find_by(slug: slug_user).id, is_stamped: 1)
-                  .select(:uuid, :emitte_date, :stamp_date, :emitter_rfc,
+                  .select(:uuid, :emitte_date, :stamp_date, :emitter_rfc, :note,
                           :receiver_rfc, :receiver_name, :voucher_type, :total, :slug, :xml)
   end
 
