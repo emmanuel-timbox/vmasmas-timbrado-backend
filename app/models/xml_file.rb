@@ -1,6 +1,6 @@
 class XmlFile < ApplicationRecord
 
-  def self.insert_xml(xml, user_slug)
+  def self.insert_xml(xml, user_slug, note)
     cfdi = Nokogiri::XML(xml)
     xml_data_file = {
       user_id: User.find_by(slug: user_slug).id,
@@ -15,6 +15,7 @@ class XmlFile < ApplicationRecord
       xml: xml,
       is_stamped: true,
       is_prefacture: false,
+      note: note,
       slug: EncryptData.encrypt('xml-file')
     }
     return XmlFile.create(xml_data_file)

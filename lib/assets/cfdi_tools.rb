@@ -10,7 +10,7 @@ class CfdiTools
       sello.content = seal_digester
       request = request_ring(cfdi.to_xml)
       stamped_cfdi = request[:response][:timbrar_cfdi_response][:timbrar_cfdi_result][:xml]
-      XmlFile.insert_xml(stamped_cfdi, data[:slugUser])
+      XmlFile.insert_xml(stamped_cfdi, data[:slugUser], data[:note])
       return { data: stamped_cfdi, code: 200, }
     rescue Exception => e
       return { data: nil, error: e.message, code: 500 }
