@@ -7,6 +7,10 @@ Rails.application.routes.draw do
   resources :certificate
   resources :employe
   resources :xml_files
+  resources :authenticate do
+    post 'login', on: :member
+    get 'logout', on: :member
+  end
   resources :create_xml do
     get 'show_receivers', on: :member
     get 'show_concepts', on: :member
