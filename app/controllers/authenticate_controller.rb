@@ -1,6 +1,6 @@
+include JsonWebToken
 class AuthenticateController < ApplicationController
 
-  require 'json_web_token'
   skip_before_action :authenticate_request, only: [:create, :login]
 
   def index
