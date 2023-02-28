@@ -1,6 +1,7 @@
 class AuthenticateController < ApplicationController
 
-  skip_before_action :authenticate_request, only: [:create]
+  require 'json_web_token'
+  skip_before_action :authenticate_request, only: [:create, :login]
 
   def index
   end
@@ -29,6 +30,25 @@ class AuthenticateController < ApplicationController
       render json: { code: code, message: message }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
+    end
+  end
+
+  def login
+    begin
+      @user = User.find_by_email(params[:email])
+      if @user&.authenticate(params[:password])
+        token = JsonWebToken.jwt_encode(slug: @user.slug)
+        user = {
+          email: @user.email,
+          name: @user.name,
+          slug: @user.slug
+        }
+        render json: {code: 200, token: token, data: user}
+      else
+        render json: { code: 500, token: nil}
+      end
+    rescue Exception => e
+      render json: {code: 500, message:e.message}
     end
   end
 

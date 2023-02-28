@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  require 'securerandom'
+  has_secure_password
 
   validates :email, uniqueness: true
   validates :rfc, uniqueness: true
@@ -7,7 +9,7 @@ class User < ApplicationRecord
       rfc: data[:rfc],
       name: data[:name],
       email: data[:email],
-      encrypted_password: BCrypt::Password.create(data[:password]),
+      password: data[:password],
       status: 1,
       slug: EncryptData.encrypt('user-client')
     }
@@ -17,7 +19,5 @@ class User < ApplicationRecord
     errors.push('RFC') if result.errors[:rfc].any?
     return {isValid: result.valid?, errors: errors}
   end
-
-
 
 end
