@@ -39,7 +39,7 @@ config/application.yml
 /tmp/storage/*
 !/tmp/storage/
 !/tmp/storage/.keep
-
+/public/pdf_images_companies/*
 
 ## Ignore master key for decrypting credentials and more.
 #/config/master.key

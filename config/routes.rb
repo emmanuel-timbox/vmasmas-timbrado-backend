@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resources :certificate
   resources :employe
   resources :xml_files
+  resources :pdf_image
   resources :authenticate do
     post 'login', on: :member
     get 'logout', on: :member

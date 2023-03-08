@@ -1,4 +1,4 @@
-class EmployeController<ApplicationController
+class EmployeController < ApplicationController
   require 'roo'
 
   def index
@@ -28,6 +28,7 @@ class EmployeController<ApplicationController
       render json: { message: e.message, code: 500 }
     end
   end
+
   def create
     begin
       file_excel = params[:fileserexcel]
@@ -38,7 +39,14 @@ class EmployeController<ApplicationController
         array_sheets[index] = Roo::Spreadsheet.open(file_excel).sheet(name)
       end
       data_excel = Excel.readExcel(array_sheets, params[:slug])
-      render json: {  code: 200 }
+      render json: { code: 200 }
+    rescue Exception => e
+      render json: { message: e.message, code: 500 }
+    end
+  end
+
+  def destroy
+    begin
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
@@ -46,7 +54,7 @@ class EmployeController<ApplicationController
 
   private def show_data(data)
     return {
-    rfc: data[:rfc],
+      rfc: data[:rfc],
       curp: data[:curp],
       social_security_number: data[:social_security_number],
       work_start_date: data[:work_start_date],
@@ -69,10 +77,4 @@ class EmployeController<ApplicationController
     }
   end
 
-  def destroy
-    begin
-    rescue Exception => e
-      render json: { message: e.message, code: 500 }
-    end
-  end
 end
