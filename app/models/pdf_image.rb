@@ -32,9 +32,11 @@ class PdfImage < ApplicationRecord
       logo_image_url = data[:logo_image] != 'undefined' ? "#{path}/#{data[:logo_image].original_filename}" : nil
       water_mark_image_url = data[:water_mark_image] != 'undefined' ? "#{path}/#{data[:water_mark_image].original_filename}" : nil
 
-      return PdfImage.find_by(slug: data[:slug])
-                     .update(logo_image_url: logo_image_url,
-                             water_mark_image_url: water_mark_image_url)
+      pdf = PdfImage.find_by(slug: data[:pdf_image_slug])
+      pdf[:logo_image_url] = logo_image_url if data[:logo_image] != 'undefined'
+      pdf[:water_mark_image_url] = water_mark_image_url if data[:water_mark_image] != 'undefined'
+
+      return pdf.save!
     rescue Exception => e
       return false
     end

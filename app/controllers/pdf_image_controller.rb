@@ -4,8 +4,12 @@ class PdfImageController < ApplicationController
 
   def show
     begin
+      code = 500
       data = PdfImage.get_images(params[:id])
-      code = data.nil? ? 500 : 200
+      unless data.nil?
+        code = 200
+        data = formatter_data(data)
+      end
       render json: { code: code, data: data }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
@@ -21,7 +25,7 @@ class PdfImageController < ApplicationController
         code = 200
         data = formatter_data(pdf_image)
       end
-      render json: { code: code, data: data}
+      render json: { code: code, data: data }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
