@@ -63,7 +63,8 @@ class EmitterConfigsController < ApplicationController
       tax_regime: data[:tax_regime],
       expedition_place: data[:expedition_place],
       status: data[:status],
-      slug: data[:slug]
+      slug: data[:slug],
+      address: data[:address]
     }
   end
 

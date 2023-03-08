@@ -3,7 +3,7 @@ class Emitter < ApplicationRecord
   def self.get_data_emmiter(slug_user)
     return Emitter.where(user_id: User.find_by(slug: slug_user))
                   .select(:bussiness_name, :rfc, :expedition_place,
-                          :tax_regime, :status, :slug)
+                          :tax_regime, :status, :slug, :address)
   end
 
   def self.get_data_emmiter_xml(slug_user)
@@ -21,6 +21,7 @@ class Emitter < ApplicationRecord
       rfc: params[:rfc],
       expedition_place: params[:expeditionPlace],
       tax_regime: params[:taxRegime],
+      address: params[:address],
       status: 1,
       slug: EncryptData.encrypt('emitter')
     }
@@ -42,6 +43,7 @@ class Emitter < ApplicationRecord
     data[:rfc] = data_emitter[:rfc]
     data[:expedition_place] = data_emitter[:expeditionPlace]
     data[:tax_regime] = data_emitter[:taxRegime]
+    data[:address] = data_emitter[:address]
     save_data = data.save!
     return { save_data: save_data, result: data }
   end
