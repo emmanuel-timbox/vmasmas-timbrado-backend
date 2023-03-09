@@ -3,14 +3,14 @@ class Emitter < ApplicationRecord
   def self.get_data_emmiter(slug_user)
     return Emitter.where(user_id: User.find_by(slug: slug_user))
                   .select(:bussiness_name, :rfc, :expedition_place,
-                          :tax_regime, :status, :slug, :address)
+                          :tax_regime, :status, :slug, :address, :company_name)
   end
 
   def self.get_data_emmiter_xml(slug_user)
     return Emitter.where(user_id: User.find_by(slug: slug_user), status: 1)
                   .select("emitters.bussiness_name , emitters.rfc,
-       emitters.expedition_place, emitters.tax_regime,
-       emitters.slug, certificates.slug as slug_certificate,
+       emitters.expedition_place, emitters.tax_regime, emitters.company_name,
+       emitters.slug, emitters.address, certificates.slug as slug_certificate,
        certificates.certificate_number").left_joins(:certificate_as_emitter)
   end
 
@@ -22,6 +22,7 @@ class Emitter < ApplicationRecord
       expedition_place: params[:expeditionPlace],
       tax_regime: params[:taxRegime],
       address: params[:address],
+      company_name: params[:companyName],
       status: 1,
       slug: EncryptData.encrypt('emitter')
     }
@@ -44,6 +45,7 @@ class Emitter < ApplicationRecord
     data[:expedition_place] = data_emitter[:expeditionPlace]
     data[:tax_regime] = data_emitter[:taxRegime]
     data[:address] = data_emitter[:address]
+    data[:company_name] = data_emitter[:companyName]
     save_data = data.save!
     return { save_data: save_data, result: data }
   end

@@ -64,7 +64,8 @@ class EmitterConfigsController < ApplicationController
       expedition_place: data[:expedition_place],
       status: data[:status],
       slug: data[:slug],
-      address: data[:address]
+      address: data[:address],
+      company_name: data[:company_name]
     }
   end
 
