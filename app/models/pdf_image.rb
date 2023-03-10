@@ -8,14 +8,14 @@ class PdfImage < ApplicationRecord
     begin
       return nil if data[:logo_image] == 'undefined' && data[:water_mark_image] == 'undefined'
 
-      HelpersApp.save_pdf_images(data, false)
+      files_name = HelpersApp.save_pdf_images(data, false)
       path = "pdf_images_companies/#{data[:slug]}"
       pdf_images = {
         emitter_id: Emitter.find_by(slug: data[:slug]).id,
         slug: EncryptData.encrypt('pdf-images')
       }
-      pdf_images[:logo_image_url] = "#{path}/#{data[:logo_image].original_filename}" if data[:logo_image] != 'undefined'
-      pdf_images[:water_mark_image_url] = "#{path}/#{data[:water_mark_image].original_filename}" if data[:water_mark_image] != 'undefined'
+      pdf_images[:logo_image_url] = "#{path}/#{files_name[:logo_image_name]}" if data[:logo_image] != 'undefined'
+      pdf_images[:water_mark_image_url] = "#{path}/#{files_name[:water_mark_image_name]}" if data[:water_mark_image] != 'undefined'
 
       return PdfImage.create(pdf_images)
     rescue Exception => e
@@ -27,10 +27,10 @@ class PdfImage < ApplicationRecord
     begin
       return nil if data[:logo_image] == 'undefined' && data[:water_mark_image] == 'undefined'
 
-      HelpersApp.save_pdf_images(data, true)
+      files_name = HelpersApp.save_pdf_images(data, true)
       path = "pdf_images_companies/#{data[:slug]}"
-      logo_image_url = data[:logo_image] != 'undefined' ? "#{path}/#{data[:logo_image].original_filename}" : nil
-      water_mark_image_url = data[:water_mark_image] != 'undefined' ? "#{path}/#{data[:water_mark_image].original_filename}" : nil
+      logo_image_url = data[:logo_image] != 'undefined' ? "#{path}/#{files_name[:logo_image_name]}" : nil
+      water_mark_image_url = data[:water_mark_image] != 'undefined' ? "#{path}/#{files_name[:water_mark_image_name]}" : nil
 
       pdf = PdfImage.find_by(slug: data[:pdf_image_slug])
       pdf[:logo_image_url] = logo_image_url if data[:logo_image] != 'undefined'
