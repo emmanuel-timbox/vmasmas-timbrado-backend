@@ -4,13 +4,16 @@ class CfdiTools
     begin
       xml = Nokogiri::XML(data[:xml]) # esta parte aun no tiene el certificado ni el sello.
       cfdi = add_certificate(xml, data[:slugEmitter])
+
       origin_string_cfdi = generate_string(cfdi)
       seal_digester = generate_digestion(origin_string_cfdi, data[:keyFile], data[:keyPassword])
       sello = cfdi.xpath('//@Sello')[0]
       sello.content = seal_digester
       request = request_ring(cfdi.to_xml)
       stamped_cfdi = request[:response][:timbrar_cfdi_response][:timbrar_cfdi_result][:xml]
-      XmlFile.insert_xml(stamped_cfdi, data[:slugUser], data[:note])
+
+      XmlFile.insert_xml(stamped_cfdi, data[:slugEmitter], data[:note])
+
       return { data: stamped_cfdi, code: 200, }
     rescue Exception => e
       return { data: nil, error: e.message, code: 500 }
