@@ -1,43 +1,76 @@
 class MassiveController < ApplicationController
 
+  # require 'validate_certificate_massive.rb'
+  require 'massive_download_solicitud_worker.rb'
+  # require 'validations_massive_download.rb'
+
+
   def create
 
     begin
+      data = {}
+
       slug_user = params[:user_slug]
       slug_emitter = params[:slug_emitter]
-      receiver_rfc = params[:rfc_receptor]
       user_id = User.find_by(slug:slug_user).id
-      emmiter_id = Emitter.find_by(slug:slug_emitter).id
-      email = params[:correo]
-      certificate = params[:cer_file]
-      key = params[:key_file]
-      password = params[:password]
-      init_date = params[:fechaIncial]
-      end_date = params[:fechafinal]
+      emitter_id = Emitter.find_by(slug:slug_emitter).id
+
+      if params['fechaIncial'].present?
+        data['fechaIncial'] = params['fechaIncial']
+      end
+      if params['fechafinal'].present?
+        data['fechafinal'] = params['fechafinal']
+      end
+      data['rfc_receptor'] = params['rfc_receptor']
+
+      if params['rfc_receptor'].present?
+        data['rfc_receptor'] = params['rfc_receptor']
+      end
+
+      if params['rfc'].present?
+        data['rfc'] = params['rfc']
+      end
+
+      if params['tipo_so'].present?
+        data['tipo_so'] = params['tipo_so']
+      end
+
+      if params['tipo_com'].present?
+        data['tipo_com'] = params['tipo_com']
+      end
+
+      if params['tipo_com'].present?
+        data['tipo_com'] = params['tipo_com']
+      end
+      if params['estado_com'].present?
+        data['estado_com'] = params['estado_com']
+      end
+
+      if params['rfc_acuentaAterceros'].present?
+        data['rfc_acuentaAterceros'] = params['rfc_acuentaAterceros']
+      end
+      data['correo'] = params['correo']
+      # data['cer_file'] = params['cer_file']
+      # data['key_file'] = params['key_file']
+      data['password'] = params['password']
+
+
       massive_download = MassiveRequest
-      byebug
-      validate_efirma = ValidateCertificateMassive::ValidateCertificateMassive.new(certificate, key)
+      validate_efirma = ValidateCertificateMassive::ValidateCertificateMassive.new(params['cer_file'], params['key_file'])
       validations = ValidationsMassiveRequest::ValidationsMassiveDownload
-      if validate_efirma.validos?(password)
+      if validate_efirma.validos?(data['password'])
         @certificate_info = validate_efirma.get_info
-        validate_range_date = validations.validate_request_times(init_date, end_date)
+        validate_range_date = validations.validate_request_times(data['fechaIncial'], data['fechafinal'])
         if validate_range_date[:is_validate]
           validate_amount_request = massive_download.validate_amount_request(user_id)
           if validate_amount_request[:is_validate]
-            data_proceso_soap = {
-              :user_id => user_id,
-              :cer => @certificate_info[:certificate_pem],
-              :key => @certificate_info[:key_pem].to_s,
-              :no_certificate => @certificate_info[:certificate_no],
-              :rfc => @certificate_info[:rfc],
-              :receiver_rfc => receiver_rfc,
-              :email => email,
-              :init_date => init_date,
-              :end_date => end_date
-            }
-            massive_download_solicitud = MassiveDownloadSolicitudWorker.perform(data_proceso_soap)
+
+            data['certificate_pem'] = @certificate_info[:certificate_pem]
+            data['key_pem'] = @certificate_info[:key_pem].to_s
+            byebug
+            massive_download_solicitud = MassiveDownloadSolicitudWorker.perform(data)
             if massive_download_solicitud[:is_accepted]
-              TempFiel.insert_temp_fiel(@certificate_info[:certificate_pem], @certificate_info[:key_pem].to_s, slug_user)
+              TempFiel.insert_temp_fiel(@certificate_info[:certificate_pem], @certificate_info[:key_pem].to_s, user_id)
               result = { message: "Se ha generado con éxito la Solicitud de Descarga Masiva con el siguiente ID #{massive_download_solicitud[:request_sat_id]}", status: 200 }
             else
               result = { message: 'Su solicitud no ha sido Aceptada', status: 500 }
@@ -61,7 +94,7 @@ class MassiveController < ApplicationController
 
   def get_massive_request
     company_id = params['company_id']
-    result = MassiveDownload.select_requests(company_id)
+    result = MassiveRequest.select_requests(company_id)
     render json: result
   end
 
@@ -86,7 +119,7 @@ class MassiveController < ApplicationController
 
   def cancel_request
     request_id = params['request_id']
-    massive_download = MassiveDownload.update_status_cancel(request_id)
+    massive_download = MassiveRequest.update_status_cancel(request_id)
     if massive_download
       data = { massage: 'Se cancelo la solicitud', status: 200 }
     else

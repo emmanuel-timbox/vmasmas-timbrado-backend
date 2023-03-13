@@ -1,7 +1,7 @@
 module ValidateCertificateMassive
 
   require 'openssl'
-  byebug
+
   class ValidateCertificateMassive
 
     ASN1_STRFLGS_ESC_MSB = 4
