@@ -49,7 +49,6 @@ module ProcessSoap
     end
 
     def get_xml_signed(certificate, key)
-      byebug
       sxml = get_xml_aut
       xml = Nokogiri::XML(sxml)
       #poner el tiempo en el cua me va a durar el token ya que este solo dura un timepo de 5 min
@@ -70,23 +69,16 @@ module ProcessSoap
     end
 
     def get_firma_solicitud(data)
-      byebug
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.send("s:Envelope",
-                 "xmlns" => "http://DescargaMasivaTerceros.sat.gob.mx",
-                 "xmlns:des" => "http://DescargaMasivaTerceros.sat.gob.mx",
-                 "xmlns:s" => "http://schemas.xmlsoap.org/soap/envelope/",
-                 "xmlns:xd" => "http://www.w3.org/2000/09/xmldsig#",
-                 ) do
+        xml.send("s:Envelope", "xmlns" => "http://DescargaMasivaTerceros.sat.gob.mx", "xmlns:des" => "http://DescargaMasivaTerceros.sat.gob.mx", "xmlns:s" => "http://schemas.xmlsoap.org/soap/envelope/", "xmlns:xd" => "http://www.w3.org/2000/09/xmldsig#", ) do
           xml.send("s:Header") do
           end
           xml.send("s:Body") do
             xml.send("des:SolicitaDescarga") do
-              xml.send("des:solicitud") do
-                data.each do |key, value|
-                  if !['correo','certificate_pem', 'key_pem', 'password'].include?(key)
-                    xml.parent.set_attribute(key,value)
-                  end
+              xml.send("des:solicitud", "FechaInicial" =>  data['FechaInicial'], "FechaFinal" => data['FechaFinal'],
+                "RfcEmisor" => data['RfcEmisor'], "RfcReceptor" => data['RfcReceptor'], "RfcSolicitante" => data['RfcSolicitante'],
+                "TipoSolicitud" => 'CFDI' ) do
+                xml.send('Signature', 'xmlns' => "http://www.w3.org/2000/09/xmldsig#") do
                 end
               end
             end
@@ -100,15 +92,18 @@ module ProcessSoap
       signer.private_key = private_key
       # signer.contains_security_node = false
       #signer.canon_algorithm_id = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
-      signer.document.xpath("//des:solicitud", {"xmlns:des" => "http://DescargaMasivaTerceros.sat.gob.mx"}).each do |node|
-        signer.digest!(node, :enveloped => true, :uri_blank => true)
+      signer_node = nil
+      signer.document.at_xpath('//des:solicitud').children.each {|node| signer_node = node }
+      signer.signature_node = signer_node
+      signer.document.xpath("//des:solicitud", {"des" => "http://DescargaMasivaTerceros.sat.gob.mx"}).each do |node|
+        signer.digest!(node, :envelope => true, :uri_blank => true, document: node)
       end
       signer.sign!(:issuer_serial => true)
       xml = Nokogiri::XML(signer.to_xml)
       return xml.to_xml
     end
 
-    def get_firma_verificar(id_solicitud, rfc_solicitante, certificate_pem, key_pem)
+    def get_firma_verificar(request_id_sat, rfc_solicitante, certificate_pem, key_pem)
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.send("s:Envelope",
                  "xmlns" => "http://DescargaMasivaTerceros.sat.gob.mx",
@@ -120,7 +115,7 @@ module ProcessSoap
           end
           xml.send("s:Body") do
             xml.send("des:VerificaSolicitudDescarga") do
-              xml.send("des:solicitud", "IdSolicitud" => id_solicitud, "RfcSolicitante" => rfc_solicitante) do
+              xml.send("des:solicitud", "IdSolicitud" => request_id_sat, "RfcSolicitante" => rfc_solicitante) do
               end
             end
           end
@@ -133,9 +128,9 @@ module ProcessSoap
       signer.contains_security_node = false
       signer.canon_algorithm_id = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
       signer.document.xpath("//des:solicitud", {"xmlns:des" => "http://DescargaMasivaTerceros.sat.gob.mx"}).each do |node|
-        signer.digest!(node, :enveloped => true, inclusive_namespaces: ['xsd', 'xsi'])
+        byebug
+        signer.digest!(node, :enveloped => true, :uri_blank => true)
       end
-      signer.sign!(:issuer_serial => true, inclusive_namespaces: ['xsd', 'xsi'])
       xml = Nokogiri::XML(signer.to_xml)
       xml.to_xml
     end
@@ -167,9 +162,8 @@ module ProcessSoap
       signer.contains_security_node = false
       signer.canon_algorithm_id = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
       signer.document.xpath("//des:peticionDescarga", {"xmlns:des" => "http://DescargaMasivaTerceros.sat.gob.mx"}).each do |node|
-        signer.digest!(node, :enveloped => true, inclusive_namespaces: ['xsd', 'xsi'])
+        signer.digest!(node, :enveloped => true, :uri_blank => true)
       end
-      signer.sign!(:issuer_serial => true, inclusive_namespaces: ['xsd', 'xsi'])
       xml = Nokogiri::XML(signer.to_xml)
       xml.to_xml
     end
