@@ -75,9 +75,11 @@ module ProcessSoap
           end
           xml.send("s:Body") do
             xml.send("des:SolicitaDescarga") do
-              xml.send("des:solicitud", "FechaInicial" =>  data['FechaInicial'], "FechaFinal" => data['FechaFinal'],
-                "RfcEmisor" => data['RfcEmisor'], "RfcReceptor" => data['RfcReceptor'], "RfcSolicitante" => data['RfcSolicitante'],
-                "TipoSolicitud" => 'CFDI' ) do
+              xml.send("des:solicitud", ) do
+                data.each do |key, value|
+                  next if ['user_id', 'emitter_id', 'certificate_pem', 'key_file', 'key_pem', 'cer_file', 'correo', 'password'].include?(key)
+                  xml.parent.set_attribute(key, value)
+                end
                 xml.send('Signature', 'xmlns' => "http://www.w3.org/2000/09/xmldsig#") do
                 end
               end

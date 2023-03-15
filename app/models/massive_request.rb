@@ -1,9 +1,9 @@
 class MassiveRequest < ApplicationRecord
 
-  def self.validate_amount_request(user_id)
+  def self.validate_amount_request(emmiter_id)
     is_validate = false
     data = { message: 'Por el momento no se puede realizar una solicitud ya que hay una activa', status: 500 }
-    massive_download = MassiveRequest.where("user_id = '#{user_id}' and status in (1,2,3,7)").first
+    massive_download = MassiveRequest.where("emmiter_id = '#{emmiter_id}' and status in (1,2,3,7)").first
     if massive_download.nil?
       is_validate = true
       data = { message: 'Se puede realizar una solicitud en estos momentos', status: 200 }
@@ -11,11 +11,11 @@ class MassiveRequest < ApplicationRecord
     return { is_validate: is_validate, data: data }
   end
 
-  def self.select_requests(user_id)
+  def self.select_requests(emmiter_id)
     packages = []
-    data_active_request = massive_request.where("user_id = '#{user_id}' and status in (1,2,3,7,8)").first
+    data_active_request = massive_request.where("emmiter_id = '#{emmiter_id}' and status in (1,2,3,7,8)").first
     data = massive_request.select("request_id_sat, estatus, cantidad_paquetes, email, created_at")
-                          .where("user_id = #{user_id}").order(created_at: :desc)
+                          .where("emmiter_id = #{emmiter_id}").order(created_at: :desc)
                           .first(5)
     if !data_active_request.nil?
       request_id = data_active_request.request_id_sat
@@ -25,8 +25,8 @@ class MassiveRequest < ApplicationRecord
   end
 
   def self.select_solicitud_fiel
-    data_result = MassiveRequest.joins("inner join temp_fiels on temp_fiels.company_id = massive_downloads.company_id")
-                                .select("temp_fiels.*, massive_downloads.*").where("status in (1, 2)")
+    data_result = MassiveRequest.joins("inner join temp_fiels on temp_fiels.emmiter_id = massive_downloads.emmiter_id")
+                                .select("temp_fiels.*, massive_requests.*").where("status in (1, 2)")
     return data_result
   end
 

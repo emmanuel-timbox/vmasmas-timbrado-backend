@@ -14,8 +14,9 @@ class MassiveController < ApplicationController
       slug_emitter = params[:slug_emitter]
       user_id = User.find_by(slug:slug_user).id
       data['user_id'] = User.find_by(slug:slug_user).id
-      emitter_id = Emitter.find_by(slug:slug_emitter).id
+      emmiter_id = Emitter.find_by(slug:slug_emitter).id
       data['emitter_id'] = Emitter.find_by(slug:slug_emitter).id
+
       if params['FechaInicial'].present?
         data['FechaInicial'] = params['FechaInicial']
       end
@@ -61,10 +62,7 @@ class MassiveController < ApplicationController
       end
 
       data['correo'] = params['correo']
-      # data['cer_file'] = params['cer_file']
-      # data['key_file'] = params['key_file']
       data['password'] = params['password']
-
 
       massive_download = MassiveRequest
       validate_efirma = ValidateCertificateMassive::ValidateCertificateMassive.new(params['cer_file'], params['key_file'])
@@ -73,15 +71,13 @@ class MassiveController < ApplicationController
         @certificate_info = validate_efirma.get_info
         validate_range_date = validations.validate_request_times(data['FechaInicial'], data['FechaFinal'])
         if validate_range_date[:is_validate]
-          validate_amount_request = massive_download.validate_amount_request(user_id)
+          validate_amount_request = massive_download.validate_amount_request(emmiter_id)
           if validate_amount_request[:is_validate]
-
             data['certificate_pem'] = @certificate_info[:certificate_pem]
             data['key_pem'] = @certificate_info[:key_pem].to_s
-            
             massive_download_solicitud = MassiveDownloadSolicitudWorker.perform(data)
             if massive_download_solicitud[:is_accepted]
-              TempFiel.insert_temp_fiel(@certificate_info[:certificate_pem], @certificate_info[:key_pem].to_s, user_id,emitter_id)
+              TempFile.new.insert_temp_file(data['certificate_pem'], data['key_pem'], user_id,emmiter_id)
               result = { message: "Se ha generado con éxito la Solicitud de Descarga Masiva con el siguiente ID #{massive_download_solicitud[:request_sat_id]}", status: 200 }
             else
               result = { message: 'Su solicitud no ha sido Aceptada', status: 500 }
@@ -100,8 +96,6 @@ class MassiveController < ApplicationController
     end
     render json: result
   end
-
-
 
   def get_massive_request
     company_id = params['company_id']

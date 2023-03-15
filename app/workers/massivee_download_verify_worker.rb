@@ -16,8 +16,8 @@ class MassiveDownloadVerifyWorker
             raise SecurityError, "Se ha producido error generando token de autenticacion. Error: #{e.message}"
           end
           begin
-            solicitud_id = solicitud.solicitud_id
-            rfc = solicitud.rfc_solicitante
+            solicitud_id = solicitud.request_id_sat
+            rfc = solicitud.receive_rfc
             fiel = solicitud.fiel64
             key = solicitud.key64
             envelope = process_soap.get_firma_verificar(solicitud_id, rfc, fiel, key)
