@@ -3,11 +3,11 @@ class MassiveDownloadVerifyWorker
   include I18n::Base
   require 'process_soap.rb'
 
-  def self.perform
+  def perform
     begin
       massive_download = MassiveRequest.select_solicitud_fiel
       if massive_download.present?
-        process_soap = ProcesoSatWs::ProcesoDescargaMasiva.new
+        process_soap = ProcessSoap::ProcesoDescargaMasiva.new
         massive_download.each do |solicitud|
           begin
             token = process_soap.get_token(solicitud.fiel64, solicitud.key64)
@@ -21,12 +21,13 @@ class MassiveDownloadVerifyWorker
             fiel = solicitud.fiel64
             key = solicitud.key64
             envelope = process_soap.get_firma_verificar(solicitud_id, rfc, fiel, key)
+            puts envelope
             uri = URI.parse(ENV['sat_descarga_verificar_wsdl'])
             https = Net::HTTP.new(uri.host, uri.port)
             https.use_ssl = true
             https.verify_mode = OpenSSL::SSL::VERIFY_NONE
-            https.read_timeout = 4
-            https.open_timeout = 4
+            https.read_timeout = 40
+            https.open_timeout = 40
             request = Net::HTTP::Post.new(uri.path)
             request['Authorization'] = 'WRAP access_token="' + token + '"'
             request['Content-Type'] = 'text/xml; charset=UTF-8'
@@ -39,25 +40,26 @@ class MassiveDownloadVerifyWorker
               xml.remove_namespaces!
               codigo_estatus = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@CodEstatus").text
               mensaje = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@Mensaje").text
-
+              byebug
               if codigo_estatus == "5000" && (mensaje.include? "Solicitud Aceptada")
                 codigo_estatus_solicitud = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@EstadoSolicitud").text
                 codigo_estado_solicitud = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@CodigoEstadoSolicitud").text
-                if codigo_estado_solicitud == "5000"
-                  solicitud.estatus = codigo_estatus_solicitud
+                if codigo_estado_solicitud == "5000" || codigo_estado_solicitud =="5010"
+                  solicitud.status = codigo_estatus_solicitud
                   if codigo_estatus_solicitud == '3'
                     packages = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/IdsPaquetes")
                     if packages.count > 0
                       solicitud.cantidad_paquetes = packages.count
 
                       packages.each do |paquete|
-
-                        packages_download = MassiveDownloadPackage.new
-                        packages_download.massive_download_id = solicitud_id
-                        packages_download.paquete_id = paquete.content
-                        packages_download.estatus = 0
-                        packages_download.descargado = 0
-                        packages_download.save!
+                        if MassiveDownloadPackage.find_by(id: solicitud_id, massive_download_id: paquete.content).nil?
+                          packages_download = MassiveDownloadPackage.new
+                          packages_download.massive_download_id = solicitud_id
+                          packages_download.paquete_id = paquete.content
+                          packages_download.estatus = 0
+                          packages_download.descargado = 0
+                          packages_download.save!
+                        end
 
                         Rails.logger.debug("#{response.body}")
                         Rails.logger.debug("paquetes")
@@ -109,8 +111,8 @@ class MassiveDownloadVerifyWorker
     end
   end
 
-  def self.take_mistake_code_status(status_code, message, request_id)
-    massive_download = MassiveDownload.select('estatus').find_by(solicitud_id: request_id)
+  def take_mistake_code_status(status_code, message, request_id)
+    massive_download = MassiveRequest.select('status').find_by(request_id_sat: request_id)
     massive_download_log = MassiveDownloadLog.new
     massive_download_log.solicitud_id = request_id
     massive_download_log.worker = 'Validar'
@@ -127,19 +129,19 @@ class MassiveDownloadVerifyWorker
     massive_download_log.save!
   end
 
-  def self.take_mistake_code_state_request(status_state_code, message, request_id)
-    massive_download = MassiveDownload.select('estatus').find_by(solicitud_id: request_id)
+  def take_mistake_code_state_request(status_state_code, message, request_id)
+    massive_download = MassiveRequest.select('estatus').find_by(solicitud_id: request_id)
     massive_download_log = MassiveDownloadLog.new
     massive_download_log.solicitud_id = request_id
     massive_download_log.worker = 'Validar'
     massive_download_log.error_code = status_state_code
     massive_download_log.message = message
     if status_state_code == '5003'
-      massive_download.estatus = '5'
+      massive_download.estatus = '5-3'
       massive_download.save!
     end
     if status_state_code == '5004'
-      massive_download.estatus = '0'
+      massive_download.estatus = '0-4'
       massive_download.save!
     end
     if status_state_code == '5005'

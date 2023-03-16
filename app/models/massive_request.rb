@@ -25,8 +25,8 @@ class MassiveRequest < ApplicationRecord
   end
 
   def self.select_solicitud_fiel
-    data_result = MassiveRequest.joins("inner join temp_fiels on temp_fiels.emmiter_id = massive_downloads.emmiter_id")
-                                .select("temp_fiels.*, massive_requests.*").where("status in (1, 2)")
+    data_result = MassiveRequest.joins("inner join temp_files on temp_files.emmiter_id = massive_requests.emmiter_id")
+                                .select("temp_files.*, massive_requests.*").where("status in (1, 2)")
     return data_result
   end
 
@@ -35,6 +35,17 @@ class MassiveRequest < ApplicationRecord
     massive_download.estatus = 9
     return massive_download.save!
   end
+
+
+  def self.get_data_employee(slug_user)
+
+    return MassiveRequest.where(user_id: User.find_by(slug: slug_user).id)
+                   .select( :emitter_rfc,:request_id_sat,:status,:email, :cantidad_paquetes, :created_at,
+                            :slug)
+
+  end
+
+
 
 
 end

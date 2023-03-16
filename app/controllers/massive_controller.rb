@@ -4,7 +4,15 @@ class MassiveController < ApplicationController
   require 'massive_download_solicitud_worker.rb'
   # require 'validations_massive_download.rb'
 
-
+  def show
+    begin
+      result = MassiveRequest.get_data_employee(params[:id])
+      code = result.nil? ? 500 : 200
+      render json: { code: code, data: result }
+    rescue Exception => e
+      render json: { message: e.message, code: 500 }
+    end
+  end
   def create
 
     begin
@@ -98,8 +106,8 @@ class MassiveController < ApplicationController
   end
 
   def get_massive_request
-    company_id = params['company_id']
-    result = MassiveRequest.select_requests(company_id)
+    emmiter_id = params['emmiter_id']
+    result = MassiveRequest.select_requests(emmiter_id)
     render json: result
   end
 
@@ -134,30 +142,7 @@ class MassiveController < ApplicationController
   end
 
 
-  private def show_data(data)
-    return {
-      rfc: data[:rfc],
-      curp: data[:curp],
-      social_security_number: data[:social_security_number],
-      work_start_date: data[:work_start_date],
-      antiquity: data[:antiquity_e],
-      type_contract: data[:type_contract],
-      unionized: data[:unionized],
-      type_working_day: data[:type_working_day],
-      regime_type: data[:regime_type],
-      employee_number: data[:employee_number],
-      departament: data[:departament],
-      risk_put: data[:risk_put_e],
-      put: data[:put],
-      payment_frequency: data[:payment_frequency],
-      banck: data[:banck],
-      banck_account: data[:banck_account],
-      base_salary: data[:base_salary],
-      daily_salary: data[:daily_salary],
-      federative_entity_key: data[:federative_entity_key],
-      slug: data[:slug]
-    }
-  end
+
 
 
 
