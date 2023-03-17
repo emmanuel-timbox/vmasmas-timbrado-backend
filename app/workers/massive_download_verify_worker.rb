@@ -5,6 +5,7 @@ class MassiveDownloadVerifyWorker
 
   def perform
     begin
+
       massive_download = MassiveRequest.select_solicitud_fiel
       if massive_download.present?
         process_soap = ProcessSoap::ProcesoDescargaMasiva.new
@@ -35,12 +36,12 @@ class MassiveDownloadVerifyWorker
             request.body = envelope
             request.body.force_encoding('UTF-8')
             response = https.request(request)
+            Rails.logger.debug(response)
             if response.code == "200"
               xml = Nokogiri::XML::Document.parse(response.body)
               xml.remove_namespaces!
               codigo_estatus = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@CodEstatus").text
               mensaje = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@Mensaje").text
-              byebug
               if codigo_estatus == "5000" && (mensaje.include? "Solicitud Aceptada")
                 codigo_estatus_solicitud = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@EstadoSolicitud").text
                 codigo_estado_solicitud = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@CodigoEstadoSolicitud").text
@@ -58,6 +59,7 @@ class MassiveDownloadVerifyWorker
                           packages_download.paquete_id = paquete.content
                           packages_download.estatus = 0
                           packages_download.descargado = 0
+                          packages_download.emmiter_id = solicitud.emmiter_id
                           packages_download.save!
                         end
 
@@ -80,13 +82,13 @@ class MassiveDownloadVerifyWorker
                   solicitud.save!
                   Rails.logger.debug(response.body)
                 else
-                  take_mistake_code_state_request(codigo_estado_solicitud, mensaje, solicitud.id)
+                  take_mistake_code_state_request(codigo_estado_solicitud, mensaje, solicitud_id)
                   Rails.logger.debug("#{response.body}")
                   Rails.logger.debug("Error de verificacion: #{mensaje}.")
                   raise "Error de verificacion:  Codigo: #{codigo_estado_solicitud}, Mensaje: #{mensaje}."
                 end
               else
-                take_mistake_code_status(codigo_estatus, mensaje, solicitud.id)
+                take_mistake_code_status(codigo_estatus, mensaje, solicitud_id)
                 Rails.logger.debug("#{response.body}")
                 Rails.logger.debug("Error de verificacion: #{mensaje}.")
                 raise "Error de verificacion:  Codigo: #{codigo_estatus}, Mensaje: #{mensaje}."
@@ -106,46 +108,49 @@ class MassiveDownloadVerifyWorker
       end
     rescue => e
       # en esta parte hay que hacer  el guardado de los errores en la base de datos
-      ExceptionNotifier.notify_exception(e, :data => { :message => "Error en el MassiveDownloadVerificarWorker: #{e.backtrace}" })
+      #ExceptionNotifier.notify_exception(e, :data => { :message => "Error en el MassiveDownloadVerificarWorker: #{e.backtrace}" })
       raise e
     end
   end
 
   def take_mistake_code_status(status_code, message, request_id)
-    massive_download = MassiveRequest.select('status').find_by(request_id_sat: request_id)
+    massive_download = MassiveRequest.find_by(request_id_sat: request_id)
     massive_download_log = MassiveDownloadLog.new
     massive_download_log.solicitud_id = request_id
     massive_download_log.worker = 'Validar'
     massive_download_log.error_code = status_code
     massive_download_log.message = message
+    massive_download_log.emmiter_id = massive_download.emmiter_id
+
     if status_code == '304'
-      massive_download.estatus = '4'
+      massive_download.status = '4'
       massive_download.save!
     end
     if status_code == '5004'
-      massive_download.estatus = '0'
+      massive_download.status = '0'
       massive_download.save!
     end
     massive_download_log.save!
   end
 
   def take_mistake_code_state_request(status_state_code, message, request_id)
-    massive_download = MassiveRequest.select('estatus').find_by(solicitud_id: request_id)
+    massive_download = MassiveRequest.find_by(request_id_sat: request_id)
     massive_download_log = MassiveDownloadLog.new
     massive_download_log.solicitud_id = request_id
     massive_download_log.worker = 'Validar'
     massive_download_log.error_code = status_state_code
     massive_download_log.message = message
+    massive_download_log.emmiter_id = massive_download.emmiter_id
     if status_state_code == '5003'
-      massive_download.estatus = '5-3'
+      massive_download.status = '5-3'
       massive_download.save!
     end
     if status_state_code == '5004'
-      massive_download.estatus = '0-4'
+      massive_download.status = '0-4'
       massive_download.save!
     end
     if status_state_code == '5005'
-      massive_download.estatus = '5'
+      massive_download.status = '5'
       massive_download.save!
     end
     massive_download_log.save!

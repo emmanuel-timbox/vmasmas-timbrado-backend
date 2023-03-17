@@ -71,7 +71,6 @@ class MassiveController < ApplicationController
 
       data['correo'] = params['correo']
       data['password'] = params['password']
-
       massive_download = MassiveRequest
       validate_efirma = ValidateCertificateMassive::ValidateCertificateMassive.new(params['cer_file'], params['key_file'])
       validations = ValidationsMassiveRequest::ValidationsMassiveDownload
@@ -85,7 +84,7 @@ class MassiveController < ApplicationController
             data['key_pem'] = @certificate_info[:key_pem].to_s
             massive_download_solicitud = MassiveDownloadSolicitudWorker.perform(data)
             if massive_download_solicitud[:is_accepted]
-              TempFile.new.insert_temp_file(data['certificate_pem'], data['key_pem'], user_id,emmiter_id)
+              TempFile.new.insert_temp_file(data['certificate_pem'], data['key_pem'], user_id,emmiter_id, massive_download_solicitud[:request_sat_id])
               result = { message: "Se ha generado con éxito la Solicitud de Descarga Masiva con el siguiente ID #{massive_download_solicitud[:request_sat_id]}", status: 200 }
             else
               result = { message: 'Su solicitud no ha sido Aceptada', status: 500 }
