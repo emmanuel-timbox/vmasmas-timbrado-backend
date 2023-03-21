@@ -7,14 +7,6 @@ class MassiveDownloadSolicitudWorker
 
     begin
       process_soap = ProcessSoap::ProcesoDescargaMasiva.new
-      # certificate = data[:cer]
-      # key = data[:key]
-      # init_date = data[:init_date]
-      # end_date = data[:end_date]
-      # rfc_applicant = data[:rfc]
-      # rfc_receiver = data[:receiver_rfc]
-      # email = data[:email]
-      # company_id = data[:company_id]
       begin
         token = process_soap.get_token(data['certificate_pem'], data['key_pem'])
       rescue Exception => e
@@ -56,7 +48,7 @@ class MassiveDownloadSolicitudWorker
             massive_download.email = data['correo']
             massive_download.slug = EncryptData.encrypt("massive_request_donwload")
             massive_download.save!
-            byebug
+
             return { is_accepted: true, request_sat_id: xml.xpath("//SolicitaDescargaResult/@IdSolicitud").text}
           else
             return { is_accepted: false}

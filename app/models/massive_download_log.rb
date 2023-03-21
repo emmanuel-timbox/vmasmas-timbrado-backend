@@ -1,0 +1,3 @@
+class MassiveDownloadLog < ApplicationRecord
+
+end

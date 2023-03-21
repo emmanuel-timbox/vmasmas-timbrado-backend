@@ -87,13 +87,10 @@ module ProcessSoap
           end
         end
       end
-
       signer = Signer.new(builder.to_xml, wss: false, canonicalize_algorithm: :c14n_1_0)
       signer.cert = get_certificate_from_pem(data['certificate_pem'])
       private_key, private_key_pem = get_key_from_pem(data['key_pem'])
       signer.private_key = private_key
-      # signer.contains_security_node = false
-      #signer.canon_algorithm_id = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
       signer_node = nil
       signer.document.at_xpath('//des:solicitud').children.each {|node| signer_node = node }
       signer.signature_node = signer_node
@@ -118,28 +115,30 @@ module ProcessSoap
           xml.send("s:Body") do
             xml.send("des:VerificaSolicitudDescarga") do
               xml.send("des:solicitud", "IdSolicitud" => request_id_sat, "RfcSolicitante" => rfc_solicitante) do
+                xml.send('Signature', 'xmlns' => "http://www.w3.org/2000/09/xmldsig#") do
+                end
               end
             end
           end
         end
       end
-      signer = Signer.new(builder.to_xml)
+      signer = Signer.new(builder.to_xml, wss: false, canonicalize_algorithm: :c14n_1_0)
       signer.cert = get_certificate_from_pem(certificate_pem)
       private_key, private_key_pem = get_key_from_pem(key_pem)
       signer.private_key = private_key
-      signer.contains_security_node = false
-      signer.canon_algorithm_id = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
+      signer_node = nil
+      signer.document.at_xpath('//des:solicitud').children.each {|node| signer_node = node }
+      signer.signature_node = signer_node
       signer.document.xpath("//des:solicitud", {"xmlns:des" => "http://DescargaMasivaTerceros.sat.gob.mx"}).each do |node|
-        byebug
-        signer.digest!(node, :enveloped => true, :uri_blank => true)
+        signer.digest!(node, :envelope => true, :uri_blank => true)
       end
+      signer.sign!(:issuer_serial => true)
       xml = Nokogiri::XML(signer.to_xml)
       xml.to_xml
     end
 
     #estos metodos es que usa para descargar los paquetes que retorna la solicitud
     def get_firma_descarga(id_paquete, rfc_solicitante, certificate_pem, key_pem)
-      byebug
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.send("s:Envelope",
                  "xmlns" => "http://DescargaMasivaTerceros.sat.gob.mx",
@@ -152,20 +151,24 @@ module ProcessSoap
           xml.send("s:Body") do
             xml.send("des:PeticionDescargaMasivaTercerosEntrada") do
               xml.send("des:peticionDescarga", "IdPaquete" => id_paquete, "RfcSolicitante" => rfc_solicitante) do
+                xml.send('Signature', 'xmlns' => "http://www.w3.org/2000/09/xmldsig#") do
+                end
               end
             end
           end
         end
       end
-      signer = Signer.new(builder.to_xml)
+      signer = Signer.new(builder.to_xml, wss: false, canonicalize_algorithm: :c14n_1_0)
       signer.cert = get_certificate_from_pem(certificate_pem)
       private_key, private_key_pem = get_key_from_pem(key_pem)
       signer.private_key = private_key
-      signer.contains_security_node = false
-      signer.canon_algorithm_id = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
+      signer_node = nil
+      signer.document.at_xpath('//des:peticionDescarga').children.each {|node| signer_node = node }
+      signer.signature_node = signer_node
       signer.document.xpath("//des:peticionDescarga", {"xmlns:des" => "http://DescargaMasivaTerceros.sat.gob.mx"}).each do |node|
-        signer.digest!(node, :enveloped => true, :uri_blank => true)
+        signer.digest!(node, :envelope => true, :uri_blank => true)
       end
+      signer.sign!(:issuer_serial => true)
       xml = Nokogiri::XML(signer.to_xml)
       xml.to_xml
     end
