@@ -10,14 +10,14 @@ class MassiveDownloadProcesarWorker
         :rackspace_region => 'IAD',
         :rackspace_cdn_ssl => true
       )
-      request_downloads = MassiveRequest.where("estatus = '7'")
+      request_downloads = MassiveRequest.where("status = '7'")
       request_downloads.each do |request|
         path = "#{Rails.root}/vendor/descarga_masiva/paquetes/#{request.request_id_sat}"
         files = Dir.glob(File.join(path, '**', '*')).select { |file| File.file?(file) }
         files.each do |package_zip|
           if File.exist?(package_zip)
             directory = @client.directories.new(:key => 'descarga_masiva_prd')
-            folder = request.solicitud_id.split('-').last()
+            folder = request.request_id_sat.split('-').last()
             package_name_zip = package_zip.split('/').last()
             package_id = package_name_zip.split('.').first()
             file = directory.files.create(
@@ -40,14 +40,14 @@ class MassiveDownloadProcesarWorker
             log(package_id, 5010, request.id)
           end
         end
-        all_packages_unpload = MassiveDownloadPackage.all_packages_unpload(request.solicitud_id)
+        all_packages_unpload = MassiveDownloadPackage.new.all_packages_unpload(request.request_id_sat)
         if all_packages_unpload
           #tambien hay que eliminar la fiel que se ocupo en este proceso
-          temp_fiel = TempFiel.find_by(company_id: request.company_id)
+          temp_fiel = TempFile.find_by(request_id_sat: request.request_id_sat)
           temp_fiel.destroy
-          path = "#{Rails.root}/vendor/descarga_masiva/paquetes/#{request.solicitud_id}"
+          path = "#{Rails.root}/vendor/descarga_masiva/paquetes/#{request.request_id_sat}"
           FileUtils.remove_dir(path) if File.directory?(path)
-          request.estatus = "8"
+          request.status = "8"
           request.save!
         end
       end

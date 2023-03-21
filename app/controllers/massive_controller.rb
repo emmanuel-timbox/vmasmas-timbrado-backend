@@ -68,7 +68,6 @@ class MassiveController < ApplicationController
       if params['Complemento'].present?
         data['Complemento'] = params['Complemento']
       end
-
       data['correo'] = params['correo']
       data['password'] = params['password']
       massive_download = MassiveRequest
