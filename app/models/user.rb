@@ -5,6 +5,7 @@ class User < ApplicationRecord
   validates :email, uniqueness: true
   validates :rfc, uniqueness: true
   def self.insert_user(data)
+    errors = []
     user = {
       rfc: data[:rfc],
       name: data[:name],
@@ -14,7 +15,6 @@ class User < ApplicationRecord
       slug: EncryptData.encrypt('user-client')
     }
     result = User.create(user)
-    errors = []
     errors.push('Email') if result.errors[:email].any?
     errors.push('RFC') if result.errors[:rfc].any?
     return {isValid: result.valid?, errors: errors}

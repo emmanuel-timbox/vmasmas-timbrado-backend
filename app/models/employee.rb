@@ -1,6 +1,6 @@
 class Employee < ApplicationRecord
-  def self.get_data_employee(slug_user)
 
+  def self.get_data_employee(slug_user)
     return Employee.where(user_id: User.find_by(slug: slug_user).id)
                    .select( :rfc,:curp,:social_security_number, :work_start_date, :antiquity, :type_contract,
                             :unionized, :type_working_day, :regime_type,:employee_number, :departament, :risk_put,:put,
@@ -8,38 +8,43 @@ class Employee < ApplicationRecord
                             :slug)
   end
 
-  def self.insert_employee(params)
-    data = {
-      rfc: params[:rfc],
-      curp: params[:curp],
-      social_security_number: params[:social_security_number],
-      work_start_date: params[:work_start_date],
-      antiquity: params[:antiquity_e],
-      type_contract: params[:type_contract],
-      unionized: params[:unionized],
-      type_working_day: params[:type_working_day],
-      regime_type: params[:regime_type],
-      employee_number: params[:employee_number],
-      departament: params[:departament],
-      risk_put: params[:risk_put_e],
-      put: params[:put],
-      payment_frequency: params[:payment_frequency],
-      banck: params[:banck],
-      banck_account: params[:banck_account],
-      base_salary: params[:base_salary],
-      daily_salary: params[:daily_salary],
-      federative_entity_key: params[:federative_entity_key],
+  def self.insert_employee_by_excel(row, receiver_id)
+    errors = []
+    employee = {
+      receiver_id: receiver_id,
+      curp: row[6],
+      social_security_number: row[7],
+      work_start_date: row[8],
+      antiquity: row[9],
+      type_contract: row[10],
+      unionized: row[11],
+      type_working_day: row[12],
+      regime_type: row[13],
+      employee_number: row[14],
+      departament: row[15],
+      job: row[16],
+      occupational_risk: row[17],
+      payment_frequency: row[18],
+      banck: row[19],
+      banck_account: row[20],
+      base_salary: row[21],
+      daily_salary: row[22],
+      federative_entity_key: row[23],
+      status: 1,
+      slug: EncryptData.encrypt('employee')
     }
-    return Employee.create(data)
-  end
 
-  def self.exist_rfc(rfc)
-    exist = false
-    employee = Employee.where(rfc: rfc)
-    exist = true if employee.count > 0
-    return { exist: exist, data: employee }
-  end
+    exist_curp = Employee.find_by(curp: row[6]).nil?
+    exist_social_security_number = Employee.find_by(social_security_number: row[7]).nil?
 
+    if !exist_curp || !exist_social_security_number
+      errors.push("Ya se encuentra registrado un Empleado con este CURP: #{row[6]}") unless exist_curp
+      errors.push("Ya se encuentra registrado un Empleado con este Numero de Seguro Socila: #{row[7]}") unless exist_social_security_number
+      return {is_valid: false, errors: errors}
+    end
+
+    return {is_valid: true, data: Employee.create(employee) } if exist_curp && exist_social_security_number
+  end
 
   def self.update_employee(data_employee)
     data = Employee.find_by(slug: data_employee[:id])

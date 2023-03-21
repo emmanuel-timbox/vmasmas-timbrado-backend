@@ -31,15 +31,23 @@ class EmployeController < ApplicationController
 
   def create
     begin
+      code = 500
+      data = nil
       file_excel = params[:fileserexcel]
       array_sheets = []
       xslx = Roo::Spreadsheet.open(file_excel)
+
       sheets = xslx.sheets
       sheets.each_with_index do |name, index|
         array_sheets[index] = Roo::Spreadsheet.open(file_excel).sheet(name)
       end
-      data_excel = Excel.readExcel(array_sheets, params[:slug])
-      render json: { code: 200 }
+
+      data_excel = Excel.readExcel(array_sheets, params[:slugUser])
+      unless data_excel.nil?
+        code = 200
+        data = data_excel
+      end
+      render json: { code: code, data: data }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end

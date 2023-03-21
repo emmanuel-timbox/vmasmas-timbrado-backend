@@ -1,82 +1,103 @@
 class Excel
-
   require 'roo'
 
   def self.readExcel(array_sheets, user_slug)
-    result = []
-    @general = array_sheets[0]
+    begin
+      result = []
+      errors = []
+      info = []
+      general = array_sheets[0]
 
-    # transaccion
-    @general.drop(1).each_with_index do |val, index|
+      general.drop(1).each_with_index do |val, index|
+        exist_emitter = Emitter.select_emitter_by_rfc(val[0], user_slug)
+        unless exist_emitter.nil?
+          begin
+            ActiveRecord::Base.transaction do
+              receiver = Receiver.find_by(issuer_id: exist_emitter[:id], rfc: val[2])
+              receiver = Receiver.insert_receiver_by_excel(val, exist_emitter[:id]) if receiver.nil?
+              # validamos actualizamos los el status de que si es de nomina y actualizar el status.
+              if receiver[:have_payrooll] == 0
+                receiver[:have_payrooll] = 1
+                receiver.save!
+              end
+              #revisa si el empleado ya se encuentra registrado con el curp y no. de suguro social
+              # con respecto a el receptor
+              exist_employee = Employee.find_by(receiver_id: receiver[:id], curp: val[6], social_security_number: val[7])
+              if exist_employee.nil?
 
-      receiver = {
-        rfc: val[0],
-        bussiness_name: val[20],
-        cfdi_use: val[21],
-        receiving_tax_domicile: val[22],
-        recipient_tax_regimen: val[23],
-        tax_id_number: val[24],
-        tax_residence: val[25],
-        status: 1,
-        have_payroll: 0,
-        slug: EncryptData.encrypt('receiver-nomina')
-      }
+                employee = Employee.insert_employee_by_excel(val, receiver[:id])
+                if employee[:is_valid]
+                  result.push(formatter_data_result(receiver, employee[:data]))
+                else
+                  message = employee[:errors][0]
+                  message + ", #{employee[:errors][1]}" if employee[:errors].count == 2
+                  errors.push({
+                                data_row: "Fila afectada: #{val[1]}, RFC: #{val[2]}",
+                                error_message: message
+                              })
+                  raise ActiveRecord::Rollback
+                end
 
-      data_nomina = {
-        user_id: User.find_by(slug: user_slug).id,
-        curp: val[1],
-        rfc: val[2],
-        social_security_number: val[3],
-        work_start_date: val[4],
-        antiquity: val[5],
-        type_contract: val[6],
-        unionized: val[7],
-        type_working_day: val[8],
-        regime_type: val[9],
-        employee_number: val[10],
-        departament: val[11],
-        put: val[12],
-        risk_put: val[13],
-        payment_frequency: val[14],
-        banck: val[15],
-        banck_account: val[16],
-        base_salary: val[17],
-        daily_salary: val[18],
-        federative_entity_key: val[19],
-        status: 1,
-        slug: EncryptData.encrypt('employee')
-      }
-
-      employee_exist = Employee.exist_rfc(val[2])
-      receiver_exist = Receiver.exist_rfc(val[0])
-
-      if receiver_exist[:exist]
-        # receptor existe mete los datos a nomina
-
-        unless employee_exist[:exist]
-          data = Employee.create(data_nomina)
-          result.push(data) unless data.nil?
-        end
-      else
-        # si no existe ambos se receptor y nomina
-        data_receiver = Receiver.create(receiver)
-        unless data_receiver.nil?
-          if employee_exist[:exist]
-          data_employee = Employee.create(data_nomina)
-            unless data_employee.nil?
-              receiver.merge(data_nomina)
-              result.push(data_receiver)
+              else
+                info.push({
+                            data_row: "Fila afectada: #{index + 1}, RFC del Receptor: #{val[2]}",
+                            info_message: 'Ya se encuentra registrado el Empleado.'
+                          })
+                next
+              end
             end
+          rescue
+            errors.push({
+                          data_row: "Fila afectada: #{index + 1}, RFC del Receptor: #{val[2]}",
+                          error_message: 'Los datos de Empleado no se registraron.'
+                        })
+            next
           end
+        end
+
+        if exist_emitter.nil?
+          info.push({
+                        emisor: val[0],
+                        data_row: "Fila afectada: #{val[1]}, RFC: #{val[2]}",
+                        error_message: 'El Emisor no se encuentra registrado.'
+                      })
+          next
         end
       end
 
+      return { data: result, errors: errors, info: info }
+    rescue Exception => e
+      return nil
     end
+  end
 
-    # aqui termina
-    return result
-    # todos los emploeados que se guardaron en base de datoṣ
+  private
 
+  def self.formatter_data_result(receiver, employee)
+    return {
+      name: receiver[:bussiness_name],
+      rfc: receiver[:rfc],
+      curp: employee[:curp],
+      social_security_number: employee[:social_security_number],
+      work_start_data: employee[:work_start_date],
+      antiquity: employee[:antiquity],
+      type_contract: employee[:type_contract],
+      unionized: employee[:unionized],
+      type_working_day: employee[:type_working_day],
+      regime_type: employee[:regime_type],
+      employee_number: employee[:employee_number],
+      departament: employee[:departament],
+      job: employee[:job],
+      occupational_risk: employee[:occupational_risk],
+      payment_frequency: employee[:payment_frequency],
+      banck: employee[:banck],
+      banck_account: employee[:banck_account],
+      base_salary: employee[:base_salary],
+      daily_salary: employee[:daily_salary],
+      federative_entity_key: employee[:federative_entity_key],
+      slug: employee[:slug]
+    }
   end
 
 end
+
