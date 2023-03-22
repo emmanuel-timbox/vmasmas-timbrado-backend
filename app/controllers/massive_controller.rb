@@ -6,12 +6,16 @@ class MassiveController < ApplicationController
 
   def show
     begin
-      result = MassiveRequest.get_data_employee(params[:id])
+      result = MassiveRequest.get_data_massive(params[:id])
       code = result.nil? ? 500 : 200
       render json: { code: code, data: result }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
+  end
+  def show_packages
+
+
   end
   def create
 
@@ -60,7 +64,6 @@ class MassiveController < ApplicationController
         data['EstadoComprobante'] = params['EstadoComprobante']
       end
 
-
       if params['RfcACuentaTerceros'].present?
         data['RfcACuentaTerceros'] = params['RfcACuentaTerceros']
       end
@@ -77,6 +80,7 @@ class MassiveController < ApplicationController
         @certificate_info = validate_efirma.get_info
         validate_range_date = validations.validate_request_times(data['FechaInicial'], data['FechaFinal'])
         if validate_range_date[:is_validate]
+          Rails.logger.debug(validate_range_date)
           validate_amount_request = massive_download.validate_amount_request(emmiter_id)
           if validate_amount_request[:is_validate]
             data['certificate_pem'] = @certificate_info[:certificate_pem]
@@ -109,42 +113,24 @@ class MassiveController < ApplicationController
     render json: result
   end
 
-  def send_email
-    begin
-      request_id = params['request_id']
-      email = params['email']
-      amount_packages = params['amount_packages']
-      created_at = params['created_at']
-      packages = params['packages']
-      if (amount_packages > 0)
-        MassiveDownloadMailer.send_packages(request_id, packages, email, created_at, amount_packages).deliver_now
-        data = { message: 'Se le envio un correo con el cual podra descargar los paquetes que resultarón de la descarga', status: 200 }
-      else
-        data = { message: 'Aun no se obtienen los paquetes de la descarga Masiva', status: 500 }
-      end
-      render json: data
-    rescue Exception => e
-      render json: { mensage: e.message }
-    end
-  end
-
-  def cancel_request
-    request_id = params['request_id']
-    massive_download = MassiveRequest.update_status_cancel(request_id)
-    if massive_download
-      data = { massage: 'Se cancelo la solicitud', status: 200 }
-    else
-      data = { massage: 'No se pudo cancelar la solicitud', status: 500 }
-    end
-    render json: data
-  end
-
-
-
-
-
-
-
-
+  # def send_email
+  #   byebug
+  #   begin
+  #     request_id = params['request_id_sat']
+  #     email = params['email']
+  #     amount_packages = params['cantidad_paquetes']
+  #     created_at = params['created_at']
+  #     packages = params['rack_url']
+  #     if (amount_packages > 0)
+  #       MassiveDownloadMailer.new.send_packages(request_id, packages, email, created_at, amount_packages).deliver_now
+  #       data = { message: 'Se le envio un correo con el cual podra descargar los paquetes que resultarón de la descarga', status: 200 }
+  #     else
+  #       data = { message: 'Aun no se obtienen los paquetes de la descarga Masiva', status: 500 }
+  #     end
+  #     render json: data
+  #   rescue Exception => e
+  #     render json: { mensage: e.message }
+  #   end
+  # end
 
 end

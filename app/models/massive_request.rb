@@ -37,11 +37,27 @@ class MassiveRequest < ApplicationRecord
   end
 
 
-  def self.get_data_employee(slug_user)
+  def self.get_data_massive(slug_user)
 
     return MassiveRequest.where(user_id: User.find_by(slug: slug_user).id)
                    .select( :emitter_rfc,:request_id_sat,:status,:email, :cantidad_paquetes, :created_at,
                             :slug)
+
+  end
+
+  def self.send_email
+    package = []
+    data_result = MassiveRequest.where("status = 8")
+    data_result.each do |elements|
+      temp = []
+      data = MassiveDownloadPackage.select("paquete_id, rack_url").where("massive_download_id = '#{elements.request_id_sat}'")
+      data.each do |ele|
+        package_data = {"id" => nill, "paquete_id" => ele.paquete_id, "rack_url" => ele.rack_url}
+        temp.push([package_data])
+      end
+      package.push([temp,elements])
+    end
+    return package
 
   end
 

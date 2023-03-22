@@ -44,6 +44,7 @@ class MassiveDownloadProcesarWorker
         if all_packages_unpload
           #tambien hay que eliminar la fiel que se ocupo en este proceso
           temp_fiel = TempFile.find_by(request_id_sat: request.request_id_sat)
+          next if temp_fiel.nil?
           temp_fiel.destroy
           path = "#{Rails.root}/vendor/descarga_masiva/paquetes/#{request.request_id_sat}"
           FileUtils.remove_dir(path) if File.directory?(path)
