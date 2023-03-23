@@ -4,19 +4,6 @@ class MassiveController < ApplicationController
   require 'massive_download_solicitud_worker.rb'
   # require 'validations_massive_download.rb'
 
-  def show
-    begin
-      result = MassiveRequest.get_data_massive(params[:id])
-      code = result.nil? ? 500 : 200
-      render json: { code: code, data: result }
-    rescue Exception => e
-      render json: { message: e.message, code: 500 }
-    end
-  end
-  def show_packages
-
-
-  end
   def create
 
     begin
@@ -107,30 +94,27 @@ class MassiveController < ApplicationController
     render json: result
   end
 
-  def get_massive_request
-    emmiter_id = params['emmiter_id']
-    result = MassiveRequest.select_requests(emmiter_id)
-    render json: result
+  def show_packages
+    begin
+      result = MassiveRequest.send_package(params[:id])
+      code = result.nil? ? 500 : 200
+      render json: { code: code, data: result }
+    rescue Exception => e
+      render json: { message: e.message, code: 500 }
+    end
+
+
   end
 
-  # def send_email
-  #   byebug
-  #   begin
-  #     request_id = params['request_id_sat']
-  #     email = params['email']
-  #     amount_packages = params['cantidad_paquetes']
-  #     created_at = params['created_at']
-  #     packages = params['rack_url']
-  #     if (amount_packages > 0)
-  #       MassiveDownloadMailer.new.send_packages(request_id, packages, email, created_at, amount_packages).deliver_now
-  #       data = { message: 'Se le envio un correo con el cual podra descargar los paquetes que resultarón de la descarga', status: 200 }
-  #     else
-  #       data = { message: 'Aun no se obtienen los paquetes de la descarga Masiva', status: 500 }
-  #     end
-  #     render json: data
-  #   rescue Exception => e
-  #     render json: { mensage: e.message }
-  #   end
-  # end
+
+  def show
+    begin
+      result = MassiveRequest.get_data_massive(params[:id])
+      code = result.nil? ? 500 : 200
+      render json: { code: code, data: result }
+    rescue Exception => e
+      render json: { message: e.message, code: 500 }
+    end
+  end
 
 end

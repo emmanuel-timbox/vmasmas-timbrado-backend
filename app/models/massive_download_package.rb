@@ -35,11 +35,6 @@ class MassiveDownloadPackage < ApplicationRecord
     return all_downloads
   end
 
-  def get_data_packages(emmiter_id)
-    return MassiveDownloadPackage.where(user_id: User.find_by(emmiter_id: emmiter_id).id)
-                         .select( :rack_url)
-  end
-
 
 
 end

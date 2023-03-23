@@ -4,6 +4,9 @@ class MassiveDownloadMailWorker
     begin
 
 
+
+
+
     end
 
   end
