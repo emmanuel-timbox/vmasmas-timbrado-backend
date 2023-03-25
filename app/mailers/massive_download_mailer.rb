@@ -1,8 +1,8 @@
 class MassiveDownloadMailer < ApplicationMailer
 
-  def send_packages(request_id, packages, email, created_at, amount_packages)
+  def self.send_packages(request_id, packages, email, created_at, amount_packages)
     begin
-      data = MassiveRequest.joins("inner join emitters on emitters.id = emitters.company_name")
+      data = MassiveRequest.joins("inner join emitters on emitters.bussiness_name = emitters.company_name")
                             .select('emitters.bussiness_name').where("massive_requests.request_id_sat = '#{request_id}'")
                             .first
       @packages = packages

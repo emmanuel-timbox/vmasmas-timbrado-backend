@@ -43,7 +43,7 @@ class MassiveRequest < ApplicationRecord
       temp = []
       data = MassiveDownloadPackage.select("paquete_id, rack_url").where("massive_download_id = '#{elements.request_id_sat}'")
       data.each do |ele|
-        package_data = {"id" => nill, "paquete_id" => ele.paquete_id, "rack_url" => ele.rack_url}
+        package_data = {"id" => nil , "paquete_id" => ele.paquete_id, "rack_url" => ele.rack_url}
         temp.push([package_data])
       end
       package.push([temp,elements])
@@ -60,7 +60,6 @@ class MassiveRequest < ApplicationRecord
 
     packages = MassiveRequest.joins(inner_join).select(select_items).where(where_condition)
     return packages
-    #
     # SELECT massive_download_packages.rack_url
     # FROM massive_requests
     # JOIN massive_download_packages ON massive_requests.request_id_sat = massive_download_packages.massive_download_id
@@ -73,9 +72,6 @@ class MassiveRequest < ApplicationRecord
     return MassiveRequest.where(user_id: User.find_by(slug: slug_user).id)
                          .select( :emitter_rfc,:request_id_sat,:status,:email, :cantidad_paquetes, :created_at,
                                   :slug)
-
   end
-
-
 
 end
