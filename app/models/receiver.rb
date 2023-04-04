@@ -1,14 +1,12 @@
 class Receiver < ApplicationRecord
+  has_many :employee_receiver, inverse_of: :receiver_as_employee, foreign_key: :receiver_id, class_name: 'Employee'
+  belongs_to :issuer, inverse_of: :receiver_emitter, class_name: 'Emitter', optional: true, autosave: true
 
   def self.get_data_receiver(slug)
     return Receiver.where(issuer_id: Emitter.find_by(slug: slug).id)
                    .select(:bussiness_name, :rfc, :cfdi_use, :receiving_tax_domicile, :status,
                            :slug, :recipient_tax_regimen, :tax_id_number, :recipient_tax_regimen, :tax_residence,
                            :receiving_tax_domicile)
-  end
-
-  def self.get_receiver_for_emitter(slug)
-
   end
 
   def self.insert_receiver(params)
@@ -61,6 +59,16 @@ class Receiver < ApplicationRecord
       have_payroll: 1
     }
     return Receiver.create(receiver)
+  end
+
+  def self.update_receiver_by_excel(receiver)
+    data = Receiver.find_by(slug: receiver[:slug_receiver])
+    data[:bussiness_name] = receiver[:bussiness_name]
+    data[:cfdi_use] = receiver[:cfdi_use]
+    data[:receiving_tax_domicile] = receiver[:receiving_tax_domicile]
+    data[:recipient_tax_regimen] = receiver[:recipient_tax_regimen]
+    save_data = data.save!
+    return { save_data: save_data, result: data }
   end
 
 end

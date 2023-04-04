@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   resources :concept_configs
   resources :tax_configs
   resources :certificate
-  resources :employe
+  resources :employee
   resources :massive
   resources :xml_files
   resources :pdf_image

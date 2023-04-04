@@ -2,6 +2,7 @@ class Emitter < ApplicationRecord
 
   has_many :certificate_as_emitter, inverse_of: :emitter_as_certficate, foreign_key: :emitter_id, class_name: 'Certificate'
   has_many :xml_file_as_emitter, inverse_of: :emitter_as_xml_file, foreign_key: :emitter_id, class_name: 'XmlFile'
+  has_many :receiver_emitter, inverse_of: :emitter_as_receiver, foreign_key: :issuer_id, class_name: 'Receiver'
 
   validates :rfc, uniqueness: true
   def self.get_data_emmiter(slug_user)

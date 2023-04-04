@@ -1,4 +1,4 @@
-class EmployeController < ApplicationController
+class EmployeeController < ApplicationController
   require 'roo'
 
   def index
@@ -16,13 +16,9 @@ class EmployeController < ApplicationController
 
   def update
     begin
-      employee = Employee.update_employee(params)
-      code = 200
-      data = nil
-      if employee[:save_data]
-        code = 200
-        data = show_data(employee[:result])
-      end
+      data = Excel.update_employee(params)
+      code = 500
+      code = 200 unless data.nil?
       render json: { code: code, data: data }
     rescue Exception => e
       render json: { message: e.message, code: 500 }
@@ -58,31 +54,6 @@ class EmployeController < ApplicationController
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
-  end
-
-  private def show_data(data)
-    return {
-      rfc: data[:rfc],
-      curp: data[:curp],
-      social_security_number: data[:social_security_number],
-      work_start_date: data[:work_start_date],
-      antiquity: data[:antiquity_e],
-      type_contract: data[:type_contract],
-      unionized: data[:unionized],
-      type_working_day: data[:type_working_day],
-      regime_type: data[:regime_type],
-      employee_number: data[:employee_number],
-      departament: data[:departament],
-      risk_put: data[:risk_put_e],
-      put: data[:put],
-      payment_frequency: data[:payment_frequency],
-      banck: data[:banck],
-      banck_account: data[:banck_account],
-      base_salary: data[:base_salary],
-      daily_salary: data[:daily_salary],
-      federative_entity_key: data[:federative_entity_key],
-      slug: data[:slug]
-    }
   end
 
 end
