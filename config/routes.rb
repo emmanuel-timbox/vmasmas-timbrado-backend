@@ -13,6 +13,11 @@ Rails.application.routes.draw do
     post 'login', on: :member
     get 'logout', on: :member
   end
+  resources :massive do
+    get 'show_massive', on: :member
+    get 'show_packages', on: :member
+    post 'send_email', on: :member
+  end
   resources :create_xml do
     get 'show_receivers', on: :member
     get 'show_concepts', on: :member

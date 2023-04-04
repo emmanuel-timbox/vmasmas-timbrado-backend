@@ -36,16 +36,42 @@ class MassiveRequest < ApplicationRecord
     return massive_download.save!
   end
 
+  def self.send_email
+    package = []
+    data_result = MassiveRequest.where("status = 8")
+    data_result.each do |elements|
+      temp = []
+      data = MassiveDownloadPackage.select("paquete_id, rack_url").where("massive_download_id = '#{elements.request_id_sat}'")
+      data.each do |ele|
+        package_data = {"id" => nil , "paquete_id" => ele.paquete_id, "rack_url" => ele.rack_url}
+        temp.push([package_data])
+      end
+      package.push([temp,elements])
+    end
+    return package
 
-  def self.get_data_employee(slug_user)
+  end
+  def self.send_package(request_id)
 
-    return MassiveRequest.where(user_id: User.find_by(slug: slug_user).id)
-                   .select( :emitter_rfc,:request_id_sat,:status,:email, :cantidad_paquetes, :created_at,
-                            :slug)
+
+    inner_join = "inner join massive_download_packages ON massive_requests.request_id_sat = massive_download_packages.massive_download_id"
+    select_items = "massive_download_packages.rack_url"
+    where_condition = "massive_requests.request_id_sat  = '#{request_id}'"
+
+    packages = MassiveRequest.joins(inner_join).select(select_items).where(where_condition)
+    return packages
+    # SELECT massive_download_packages.rack_url
+    # FROM massive_requests
+    # JOIN massive_download_packages ON massive_requests.request_id_sat = massive_download_packages.massive_download_id
+    # WHERE massive_requests.request_id_sat = '6606f62e-81e2-41e8-b6e4-153e4f442c51';
 
   end
 
+  def self.get_data_massive(slug_user)
 
-
+    return MassiveRequest.where(user_id: User.find_by(slug: slug_user).id)
+                         .select( :emitter_rfc,:request_id_sat,:status,:email, :cantidad_paquetes, :created_at,
+                                  :slug)
+  end
 
 end

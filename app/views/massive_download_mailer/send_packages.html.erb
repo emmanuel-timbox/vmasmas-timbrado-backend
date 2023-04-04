@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- So that mobile will display zoomed in -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- enable media queries for windows phone 8 -->
+  <meta name="format-detection" content="telephone=no"> <!-- disable auto telephone linking in iOS -->
+
+  <title>Bienvenida Timbox</title>
+
+  <style type="text/css">
+      body {
+          margin: 0;
+          padding: 0;
+          -ms-text-size-adjust: 100%;
+          -webkit-text-size-adjust: 100%;
+      }
+
+      table {
+          border-spacing: 0;
+      }
+
+      table td {
+          border-collapse: collapse;
+      }
+
+      .ExternalClass {
+          width: 100%;
+      }
+
+      .ExternalClass,
+      .ExternalClass p,
+      .ExternalClass span,
+      .ExternalClass font,
+      .ExternalClass td,
+      .ExternalClass div {
+          line-height: 100%;
+      }
+
+      .ReadMsgBody {
+          width: 100%;
+          background-color: #ebebeb;
+      }
+
+      table {
+          mso-table-lspace: 0pt;
+          mso-table-rspace: 0pt;
+      }
+
+      img {
+          -ms-interpolation-mode: bicubic;
+      }
+
+      .yshortcuts a {
+          border-bottom: none !important;
+      }
+
+      @media screen and (max-width: 599px) {
+          .force-row,
+          .container {
+              width: 100% !important;
+              max-width: 100% !important;
+          }
+      }
+
+      @media screen and (max-width: 400px) {
+          .container-padding {
+              padding-left: 12px !important;
+              padding-right: 12px !important;
+          }
+      }
+
+      .ios-footer a {
+          color: #aaaaaa !important;
+          text-decoration: underline;
+      }
+
+      .example_b {
+          color: #fff !important;
+          text-transform: uppercase;
+          text-decoration: none;
+          background: #60a3bc;
+          padding: 10px;
+          border-radius: 50px;
+          display: inline-block;
+          border: none;
+          transition: all 0.4s ease 0s;
+      }
+
+      .example_b:hover {
+          text-shadow: 0px 0px 6px rgba(255, 255, 255, 1);
+          -webkit-box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.57);
+          -moz-box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.57);
+          transition: all 0.4s ease 0s;
+      }
+
+  </style>
+</head>
+
+<body style="margin:0; padding:0;" bgcolor="#ffffff" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#ffffff">
+  <tbody>
+  <tr>
+    <td style="background-color: #ffffff;" align="center" valign="top" bgcolor="#ffffff">
+      <br/> <!-- 600px container (white background) -->
+      <table class="container" style="width: 600px; max-width: 600px;" border="0" width="600" cellspacing="0" cellpadding="0">
+        <tbody>
+        <tr>
+          <td class="container-padding header" style="font-family: Helvetica, Arial, sans-serif; font-size: 24px; font-weight: bold; padding-bottom: 12px; color: #df4726; padding-left: 24px; padding-right: 24px;"
+              align="center">
+            <a href="http://timbox.com.mx/" target="_blank"><img src="http://www.timbox.com.mx/IMG/logotimbox.png" alt=""/></a>
+          </td>
+        </tr>
+        <tr>
+          <td class="container-padding content" style="background-color: #f0f0f0; padding: 12px 24px 12px 24px;" align="left">
+            <br/>
+            <div class="title" style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; color: #374550;">Descarga
+              Masiva de Comprobantes
+            </div>
+
+            <br/>
+            <div class="body-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left; color: #333333;">
+              Hola, <b>&iexcl; <%= @nombre %></b>, usted está recibiendo este correo de parte de Timbox,
+              para informarle que la solicitud de Descarga Masiva ha concluido exitosamente!
+            </div>
+            <br/>
+            <div class="body-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left; color: #333333;">
+              Su solicitud <b>‘<%= @request_id %>’</b> se ha completado exitosamente con los siguientes resultados:
+              <div class="body-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left; color: #333333;">
+                <div class="body-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left; color: #333333;">
+                  <ul>
+                    <li>Inicio de la solicitud: <%= @created_at %></li>
+                    <li>Paquetes generados: <%= @amount_packages %></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <br/>
+            <div class="hr" style="height: 1px; border-bottom: 1px solid #cccccc; clear: both;">&nbsp;</div>
+            <br/>
+            <div class="title" style="font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; color: #16acff;">
+              Listado de paquetes obtenidos
+            </div>
+            <br/>
+            <div class="body-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left; color: #333333;">
+              <div class="body-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left; color: #333333;">
+                <ul>
+                  <% @packages.each_with_index do |package, index| %>
+                    <li style="padding: 5px;">
+                      Paquete <%= index + 1%> : <a class="example_b" href="<%= package['rack_url'] %>">Descargar</a>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+            <br/>
+            <div class="body-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; text-align: left; color: #333333;">
+              Saludos, atentamente el equipo de Timbox.
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <!-- pie de pagina -->
+          <td class="container-padding footer-text" style="font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 16px; color: #aaaaaa; padding-left: 24px; padding-right: 24px;" align="left">
+            <br/><br/> Estas recibiendo este correo electr&oacute;nico porque has aceptado los
+            <a style="color: #aaaaaa;" href="http://timbox.com.mx/terminos.php" target="_blank">
+              t&eacute;rminos y condiciones
+            </a> en nuestro sitio web. Para actualizar tus preferencias de correo electr&oacute;nico o darte de baja
+            puedes acceder a la configuraci&oacute;n de tu correo.
+            <br/><br/> <strong>Timbox</strong><br/>
+            <span class="ios-footer"> Nuestro horario de atenci&oacute;n es de 7:30 am a 5:00 pm TP (tiempo del pac&iacute;fico)
+            <br/> <strong><a style="color: #374550 !important; font-size: 14px;" href="tel:01-800-788-0195">800 788 0195</a></strong><br/>
+            </span> <a style="color: #aaaaaa;" href="http://timbox.com.mx/">www.timbox.com.mx</a><br/> <br/><br/></td>
+        </tr>
+        </tbody>
+      </table>
+      <!--/600px container -->
+    </td>
+  </tr>
+  </tbody>
+</table>
+<!--/100% background wrapper-->
+</body>
+</html>
