@@ -9,7 +9,7 @@ class Employee < ApplicationRecord
                             employees.type_contract, employees.unionized, employees.type_working_day, employees.regime_type,
                             employees.employee_number, employees.departament, employees.job, employees.occupational_risk,
                             employees.payment_frequency, employees.banck, employees.banck_account, employees.base_salary,
-                            employees.daily_salary, federative_entity_key, employees.slug as slug_employee")
+                            employees.daily_salary, federative_entity_key, employees.slug as slug_employee, employees.status")
                    .joins(receiver: [:issuer])
   end
 
@@ -73,6 +73,15 @@ class Employee < ApplicationRecord
     data[:federative_entity_key] = data_employee[:federative_entity_key]
     save_data = data.save!
     return { save_data: save_data, result: data }
+  end
+
+  def self.update_status_employee(slug)
+    employee = Employee.find_by(slug: slug)
+    status_init = employee[:status]
+    employee.status = 0 if status_init == 1
+    employee.status = 1 if status_init == 0
+    save = employee.save!
+    return { save: save, result: employee }
   end
 
   private

@@ -1,7 +1,7 @@
 class Excel
   require 'roo'
 
-  def self.readExcel(array_sheets, user_slug)
+  def self.read_excel(array_sheets, user_slug)
     begin
       result = []
       errors = []
@@ -92,6 +92,25 @@ class Excel
     end
   end
 
+  def self.update_status_employee(params)
+    begin
+      data = nil
+      ActiveRecord::Base.transaction do
+        employee = Employee.update_status_employee(params['slugEmployee'])
+        receiver = Receiver.update_status_receiver(params['slugReceiver'])
+
+        raise ActiveRecord::Rollback unless employee[:save]
+        raise ActiveRecord::Rollback unless employee[:save]
+
+        data = formatter_data_result(receiver[:result], employee[:result])
+      end
+      return data
+
+    rescue Exeption => e
+      return nil
+    end
+  end
+
   private
 
   def self.formatter_data_result(receiver, employee)
@@ -121,7 +140,8 @@ class Excel
       daily_salary: employee[:daily_salary],
       federative_entity_key: employee[:federative_entity_key],
       slug_employee: employee[:slug],
-      id: nil
+      id: nil,
+      status: employee[:status]
     }
   end
 

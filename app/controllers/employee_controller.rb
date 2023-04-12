@@ -38,7 +38,7 @@ class EmployeeController < ApplicationController
         array_sheets[index] = Roo::Spreadsheet.open(file_excel).sheet(name)
       end
 
-      data_excel = Excel.readExcel(array_sheets, params[:slugUser])
+      data_excel = Excel.read_excel(array_sheets, params[:slugUser])
       unless data_excel.nil?
         code = 200
         data = data_excel
@@ -51,6 +51,17 @@ class EmployeeController < ApplicationController
 
   def destroy
     begin
+      code = 500
+      data = nil
+      data_slugs = JSON.parse(params[:id])
+
+      employee_data = Excel.update_status_employee(data_slugs)
+      unless employee_data.nil?
+        code = 200
+        data = employee_data
+      end
+
+      render json: {code: code, data: data}
     rescue Exception => e
       render json: { message: e.message, code: 500 }
     end
