@@ -6,7 +6,7 @@ class Receiver < ApplicationRecord
     return Receiver.where(issuer_id: Emitter.find_by(slug: slug).id)
                    .select(:bussiness_name, :rfc, :cfdi_use, :receiving_tax_domicile, :status,
                            :slug, :recipient_tax_regimen, :tax_id_number, :recipient_tax_regimen, :tax_residence,
-                           :receiving_tax_domicile)
+                           :receiving_tax_domicile, :have_payroll)
   end
 
   def self.insert_receiver(params)
@@ -69,6 +69,31 @@ class Receiver < ApplicationRecord
     data[:recipient_tax_regimen] = receiver[:recipient_tax_regimen]
     save_data = data.save!
     return { save_data: save_data, result: data }
+  end
+
+  def self.update_status_receiver_employee(params)
+    begin
+      data = nil
+
+      ActiveRecord::Base.transaction do
+        if params['havePayroll'] == 0
+          data = update_status_receiver(params['slug'])
+        else
+          receiver = update_status_receiver(params['slug'])
+          slug_employee = Employee.find_by(receiver_id: receiver[:result][:id]).slug
+          employee = Employee.update_status_employee(slug_employee)
+
+          raise ActiveRecord::Rollback unless receiver[:save]
+          raise ActiveRecord::Rollback unless employee[:save]
+
+          data = receiver[:result]
+        end
+      end
+
+      return { save: true, result: data }
+    rescue Exception => e
+      return { save: false, result: nil }
+    end
   end
 
 end

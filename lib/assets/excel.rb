@@ -99,7 +99,7 @@ class Excel
         employee = Employee.update_status_employee(params['slugEmployee'])
         receiver = Receiver.update_status_receiver(params['slugReceiver'])
 
-        raise ActiveRecord::Rollback unless employee[:save]
+        raise ActiveRecord::Rollback unless receiver[:save]
         raise ActiveRecord::Rollback unless employee[:save]
 
         data = formatter_data_result(receiver[:result], employee[:result])

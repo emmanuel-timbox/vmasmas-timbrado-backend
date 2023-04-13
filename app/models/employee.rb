@@ -9,7 +9,8 @@ class Employee < ApplicationRecord
                             employees.type_contract, employees.unionized, employees.type_working_day, employees.regime_type,
                             employees.employee_number, employees.departament, employees.job, employees.occupational_risk,
                             employees.payment_frequency, employees.banck, employees.banck_account, employees.base_salary,
-                            employees.daily_salary, federative_entity_key, employees.slug as slug_employee, employees.status")
+                            employees.daily_salary, federative_entity_key, employees.slug as slug_employee, employees.status,
+                            emitters.bussiness_name as company_bussiness_name")
                    .joins(receiver: [:issuer])
   end
 
