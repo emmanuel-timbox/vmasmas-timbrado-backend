@@ -9,6 +9,13 @@ class Receiver < ApplicationRecord
                            :receiving_tax_domicile, :have_payroll)
   end
 
+  def self.get_data_receiver_not_employees(slug)
+    return Receiver.where(issuer_id: Emitter.find_by(slug: slug).id).where.not(have_payroll: 1)
+                   .select(:bussiness_name, :rfc, :cfdi_use, :receiving_tax_domicile, :status,
+                           :slug, :recipient_tax_regimen, :tax_id_number, :recipient_tax_regimen, :tax_residence,
+                           :receiving_tax_domicile, :have_payroll)
+  end
+
   def self.insert_receiver(params)
     data = {
       issuer_id: Emitter.find_by(slug: params[:slugEmitter]).id,
