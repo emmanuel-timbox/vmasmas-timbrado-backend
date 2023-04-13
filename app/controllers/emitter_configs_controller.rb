@@ -22,7 +22,8 @@ class EmitterConfigsController < ApplicationController
       end
       render json: { code: code, data: data }
     rescue Exception => e
-      render json: { message: e.message, code: 500 }
+      valid_uniq = e.class == ActiveRecord::RecordInvalid ? true : false
+      render json: { message: e.message, code: 500, validate: valid_uniq }
     end
   end
 
@@ -37,7 +38,8 @@ class EmitterConfigsController < ApplicationController
       end
       render json: { code: code, data: data }
     rescue Exception => e
-      render json: { message: e.message, code: 500 }
+      valid_uniq = e.class == ActiveRecord::RecordInvalid ? true : false
+      render json: { message: e.message, code: 500, validate: valid_uniq }
     end
   end
 

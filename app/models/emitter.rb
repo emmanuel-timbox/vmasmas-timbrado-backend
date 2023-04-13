@@ -4,7 +4,8 @@ class Emitter < ApplicationRecord
   has_many :xml_file_as_emitter, inverse_of: :emitter_as_xml_file, foreign_key: :emitter_id, class_name: 'XmlFile'
   has_many :receiver_emitter, inverse_of: :emitter_as_receiver, foreign_key: :issuer_id, class_name: 'Receiver'
 
-  validates :rfc, uniqueness: true
+  validates :rfc, uniqueness: { scope: :user_id, message: 'ya se encuentra registrado.' }
+
   def self.get_data_emmiter(slug_user)
     return Emitter.where(user_id: User.find_by(slug: slug_user))
                   .select(:bussiness_name, :rfc, :expedition_place,
@@ -35,7 +36,9 @@ class Emitter < ApplicationRecord
       status: 1,
       slug: EncryptData.encrypt('emitter')
     }
-    return Emitter.create(data)
+    emitter = Emitter.new(data)
+
+    return emitter.save! ? emitter : nil
   end
 
   def self.update_status_emitter(slug)
