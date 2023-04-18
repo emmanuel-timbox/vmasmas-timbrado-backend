@@ -43,17 +43,16 @@ class MassiveRequest < ApplicationRecord
       temp = []
       data = MassiveDownloadPackage.select("paquete_id, rack_url").where("massive_download_id = '#{elements.request_id_sat}'")
       data.each do |ele|
-        package_data = {"id" => nil , "paquete_id" => ele.paquete_id, "rack_url" => ele.rack_url}
+        package_data = { "id" => nil, "paquete_id" => ele.paquete_id, "rack_url" => ele.rack_url }
         temp.push([package_data])
       end
-      package.push([temp,elements])
+      package.push([temp, elements])
     end
     return package
 
   end
+
   def self.send_package(request_id)
-
-
     inner_join = "inner join massive_download_packages ON massive_requests.request_id_sat = massive_download_packages.massive_download_id"
     select_items = "massive_download_packages.rack_url"
     where_condition = "massive_requests.request_id_sat  = '#{request_id}'"
@@ -64,14 +63,32 @@ class MassiveRequest < ApplicationRecord
     # FROM massive_requests
     # JOIN massive_download_packages ON massive_requests.request_id_sat = massive_download_packages.massive_download_id
     # WHERE massive_requests.request_id_sat = '6606f62e-81e2-41e8-b6e4-153e4f442c51';
-
   end
 
   def self.get_data_massive(slug_user)
-
     return MassiveRequest.where(user_id: User.find_by(slug: slug_user).id)
-                         .select( :emitter_rfc,:request_id_sat,:status,:email, :cantidad_paquetes, :created_at,
-                                  :slug)
+                         .select(:emitter_rfc, :request_id_sat, :status, :email,
+                                 :cantidad_paquetes, :created_at, :slug)
+  end
+
+  def self.insert_massive_request(params, request_id_sat, user_id, emitter_id, email)
+    data = {
+      request_id_sat: request_id_sat,
+      user_id: user_id,
+      emmiter_id: emitter_id,
+      receive_rfc: params[:RfcSolicitante],
+      emitter_rfc: params[:RfcEmisor],
+      start_date: params[:FechaInicial],
+      final_date: params[:FechaFinal],
+      email: email,
+      slug: EncryptData.encrypt("massive_request_donwload"),
+      status: 1
+    }
+    massive_requesst = MassiveRequest.new(data)
+
+    return { is_accepted: false } unless massive_requesst.save!
+
+    return { is_accepted: true, request_sat_id: request_id_sat, data: massive_requesst }
   end
 
 end

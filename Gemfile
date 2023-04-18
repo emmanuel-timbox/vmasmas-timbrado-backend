@@ -60,6 +60,8 @@ gem 'savon'
 gem 'jwt'
 gem 'bcrypt'
 
+gem 'signer', '1.10.0', :git => 'git@bitbucket.org:timboxmx/signer.git', :branch => 'feature'
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 

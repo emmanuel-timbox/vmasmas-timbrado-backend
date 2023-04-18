@@ -4,6 +4,24 @@ module ProcessSoap
 
   class ProcesoDescargaMasiva
 
+    def http_massive_request(uri ,soap_action, token, envelope)
+      uri = URI.parse(uri)
+      https = Net::HTTP.new(uri.host, uri.port)
+      https.use_ssl = true
+      https.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      https.read_timeout = 50
+      https.open_timeout = 50
+
+      request = Net::HTTP::Post.new(uri.path)
+      request['Authorization'] = 'WRAP access_token="' + token + '"'
+      request['Content-Type'] = 'text/xml; charset=UTF-8'
+      request['SOAPAction'] = soap_action
+      request.body = envelope
+      request.body.force_encoding('UTF-8')
+
+      return  https.request(request)
+    end
+
     def get_token(certificate, key)
       client = Savon.client(
         wsdl: ENV['sat_descarga_autenticacion_wsdl'],
@@ -87,16 +105,19 @@ module ProcessSoap
           end
         end
       end
+
       signer = Signer.new(builder.to_xml, wss: false, canonicalize_algorithm: :c14n_1_0)
-      signer.cert = get_certificate_from_pem(data['certificate_pem'])
-      private_key, private_key_pem = get_key_from_pem(data['key_pem'])
+      signer.cert = get_certificate_from_pem(data[:certificate_pem])
+      private_key, private_key_pem = get_key_from_pem(data[:key_pem])
       signer.private_key = private_key
       signer_node = nil
       signer.document.at_xpath('//des:solicitud').children.each {|node| signer_node = node }
       signer.signature_node = signer_node
+
       signer.document.xpath("//des:solicitud", {"des" => "http://DescargaMasivaTerceros.sat.gob.mx"}).each do |node|
         signer.digest!(node, :envelope => true, :uri_blank => true, document: node)
       end
+
       signer.sign!(:issuer_serial => true)
       xml = Nokogiri::XML(signer.to_xml)
       return xml.to_xml
