@@ -40,7 +40,7 @@ class MassiveController < ApplicationController
         result = {
           message: "Se ha generado con éxito la Solicitud de Descarga Masiva con el siguiente ID #{massive_download_solicitud[:request_sat_id]}",
           code: 200,
-          data: massive_download_solicitud[:data]
+          data: data_formatter(massive_download_solicitud[:data])
         }
       else
         result = { message: 'Su solicitud no ha sido Aceptada', code: 500 }
@@ -92,4 +92,15 @@ class MassiveController < ApplicationController
     return data
   end
 
+  private def data_formatter(data)
+    return {
+      cantidad_paquetes: data[:cantidad_paquetes],
+      created_at: data[:created_at],
+      email: data[:email],
+      emitter_rfc: data[:emitter_rfc],
+      request_id_sat: data[:request_id_sat],
+      slug: data[:slug],
+      status: data[:status],
+    }
+  end
 end

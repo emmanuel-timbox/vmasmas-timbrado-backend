@@ -5,24 +5,27 @@ class MassiveDownloadVerifyWorker
 
   def perform
     begin
-
       massive_download = MassiveRequest.select_solicitud_fiel
       if massive_download.present?
+
         process_soap = ProcessSoap::ProcesoDescargaMasiva.new
         massive_download.each do |solicitud|
+
           begin
             token = process_soap.get_token(solicitud.fiel64, solicitud.key64)
           rescue Exception => e
             Rails.logger.debug("Se ha producido error generando token de autenticacion. Error: #{e.message}")
             raise SecurityError, "Se ha producido error generando token de autenticacion. Error: #{e.message}"
           end
+
           begin
             solicitud_id = solicitud.request_id_sat
             rfc = solicitud.receive_rfc
             fiel = solicitud.fiel64
             key = solicitud.key64
             envelope = process_soap.get_firma_verificar(solicitud_id, rfc, fiel, key)
-            puts envelope
+
+
             uri = URI.parse(ENV['sat_descarga_verificar_wsdl'])
             https = Net::HTTP.new(uri.host, uri.port)
             https.use_ssl = true
@@ -36,19 +39,25 @@ class MassiveDownloadVerifyWorker
             request.body = envelope
             request.body.force_encoding('UTF-8')
             response = https.request(request)
+
             Rails.logger.debug(response)
+
             if response.code == "200"
               xml = Nokogiri::XML::Document.parse(response.body)
               xml.remove_namespaces!
               codigo_estatus = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@CodEstatus").text
               mensaje = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@Mensaje").text
+
               if codigo_estatus == "5000" && (mensaje.include? "Solicitud Aceptada")
                 codigo_estatus_solicitud = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@EstadoSolicitud").text
                 codigo_estado_solicitud = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/@CodigoEstadoSolicitud").text
+
                 if codigo_estado_solicitud == "5000" || codigo_estado_solicitud =="5010"
                   solicitud.status = codigo_estatus_solicitud
+
                   if codigo_estatus_solicitud == '3'
                     packages = xml.xpath("//VerificaSolicitudDescargaResponse/VerificaSolicitudDescargaResult/IdsPaquetes")
+
                     if packages.count > 0
                       solicitud.cantidad_paquetes = packages.count
 
@@ -74,38 +83,47 @@ class MassiveDownloadVerifyWorker
                       Rails.logger.debug("No paquetes encontrados. idadhahwdiahwdh")
                       raise "No paquetes encontrados."
                     end
+
                     Rails.logger.debug("#{response.body}")
                   else
                     solicitud.save!
                     Rails.logger.debug(response.body)
                   end
+
                   solicitud.save!
                   Rails.logger.debug(response.body)
+
                 else
                   take_mistake_code_state_request(codigo_estado_solicitud, mensaje, solicitud_id)
                   Rails.logger.debug("#{response.body}")
                   Rails.logger.debug("Error de verificacion: #{mensaje}.")
                   raise "Error de verificacion:  Codigo: #{codigo_estado_solicitud}, Mensaje: #{mensaje}."
                 end
+
               else
                 take_mistake_code_status(codigo_estatus, mensaje, solicitud_id)
                 Rails.logger.debug("#{response.body}")
                 Rails.logger.debug("Error de verificacion: #{mensaje}.")
                 raise "Error de verificacion:  Codigo: #{codigo_estatus}, Mensaje: #{mensaje}."
               end
+
             else
               Rails.logger.debug("Error de comunicacion con el servicio: Codigo: #{response.code}, Mensaje: #{response.body}.")
               raise "Error de comunicacion con el servicio: Codigo: #{response.code}, Mensaje: #{response.body}."
             end
+
           rescue Exception => e
             Rails.logger.debug("#{e.message}")
             raise "#{e.message}"
           end
+
         end
+
       else
         Rails.logger.debug("No encontrados solicitudes aceptadas")
         return false
       end
+
     rescue => e
       # en esta parte hay que hacer  el guardado de los errores en la base de datos
       #ExceptionNotifier.notify_exception(e, :data => { :message => "Error en el MassiveDownloadVerificarWorker: #{e.backtrace}" })
@@ -141,18 +159,22 @@ class MassiveDownloadVerifyWorker
     massive_download_log.error_code = status_state_code
     massive_download_log.message = message
     massive_download_log.emmiter_id = massive_download.emmiter_id
+
     if status_state_code == '5003'
       massive_download.status = '5-3'
       massive_download.save!
     end
+
     if status_state_code == '5004'
       massive_download.status = '0-4'
       massive_download.save!
     end
+
     if status_state_code == '5005'
       massive_download.status = '5'
       massive_download.save!
     end
+
     massive_download_log.save!
   end
 
