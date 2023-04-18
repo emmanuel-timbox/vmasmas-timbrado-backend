@@ -14,19 +14,19 @@ class MassiveController < ApplicationController
       # validacion de certificado o firma
       validate_efirma = ValidateCertificateMassive.new(params['cerFile'], params['keyFile'])
       unless validate_efirma.validos?(params['password'])
-        raise StandardError, { message: validate_efirma.get_error, estatus: 500 }
+        raise StandardError, validate_efirma.get_error
       end
 
       # validacion de rango de la fecha
       validate_range_date = validations.validate_request_times(params['fechaInicial'], params['fechaFinal'])
       unless validate_range_date[:is_validate]
-        raise StandardError, validate_range_date[:data]
+        raise StandardError, validate_range_date[:data][:message]
       end
 
       # validacion de que no contenga una solicitud abierta el emisor
       validate_amount_request = massive_download.validate_amount_request(emitter_id)
       unless validate_amount_request[:is_validate]
-        raise StandardError, validate_amount_request[:data]
+        raise StandardError, validate_amount_request[:data][:message]
       end
 
       @certificate_info = validate_efirma.get_info
@@ -37,18 +37,18 @@ class MassiveController < ApplicationController
 
       if massive_download_solicitud[:is_accepted]
         TempFile.new.insert_temp_file(certificate_pem, key_pem, user_id, emitter_id, massive_download_solicitud[:request_sat_id])
-        result =  {
+        result = {
           message: "Se ha generado con éxito la Solicitud de Descarga Masiva con el siguiente ID #{massive_download_solicitud[:request_sat_id]}",
-          status: 200,
+          code: 200,
           data: massive_download_solicitud[:data]
         }
       else
-        result =  { message: 'Su solicitud no ha sido Aceptada', status: 500 }
+        result = { message: 'Su solicitud no ha sido Aceptada', code: 500 }
       end
 
       render json: result
     rescue Exception => e
-      render json: { message: e.message, estatus: 500 }
+      render json: {message: e.message, code: 500}
     end
   end
 
