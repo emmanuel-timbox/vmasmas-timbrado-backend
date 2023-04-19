@@ -91,4 +91,31 @@ class MassiveRequest < ApplicationRecord
     return { is_accepted: true, request_sat_id: request_id_sat, data: massive_requesst }
   end
 
+  def self.update_state_massive_request(request_id, status_state_code)
+    massive_download = MassiveRequest.find_by(request_id_sat: request_id)
+
+    massive_download.status = '5-3' if status_state_code == '5003'
+    massive_download.status = '0-4' if status_state_code == '5004'
+    massive_download.status = '5' if status_state_code == '5005'
+
+    massive_download.save!
+    return massive_download
+  end
+
+  def self.update_code_status(request_id, status_code)
+    massive_download = MassiveRequest.find_by(request_id_sat: request_id)
+
+    if status_code == '304'
+      massive_download.status = '4'
+      massive_download.save!
+    end
+
+    if status_code == '5004'
+      massive_download.status = '0'
+      massive_download.save!
+    end
+
+    return massive_download
+  end
+
 end

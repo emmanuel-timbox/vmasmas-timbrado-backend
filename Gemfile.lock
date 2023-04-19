@@ -1,3 +1,11 @@
+GIT
+  remote: git@bitbucket.org:timboxmx/signer.git
+  revision: 01a166ff10248d1ae65d3dfbab3c850e7a4cd308
+  branch: feature
+  specs:
+    signer (1.10.0)
+      nokogiri (>= 1.5.1, != 1.12.3, != 1.12.2, != 1.12.1, != 1.12.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -258,6 +266,7 @@ DEPENDENCIES
   roo (~> 2.9)
   savon
   selenium-webdriver
+  signer (= 1.10.0)!
   sprockets-rails
   sqlite3 (~> 1.4)
   stimulus-rails
