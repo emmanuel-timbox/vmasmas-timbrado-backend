@@ -9,6 +9,13 @@ gem "rails", "~> 7.0.2", ">= 7.0.2.4"
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
 
+#libreria propia de signer, donde se le agregaron metodos para el uso de ws-conversation
+gem 'signer', '1.10.0', :git => 'git@bitbucket.org:timboxmx/signer.git', :branch => 'feature'
+# Libreria para conexiones con servicios (Rackspace)
+gem 'fog-rackspace'
+gem 'rake'
+gem 'carrierwave'
+
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", "~> 1.4"
 
@@ -59,8 +66,6 @@ gem 'savon'
 
 gem 'jwt'
 gem 'bcrypt'
-
-gem 'signer', '1.10.0', :git => 'git@bitbucket.org:timboxmx/signer.git', :branch => 'feature'
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
