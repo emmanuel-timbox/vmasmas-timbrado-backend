@@ -13,8 +13,7 @@ gem "sprockets-rails"
 gem 'signer', '~> 1.4', '>= 1.4.2'
 
 # Libreria para conexiones con servicios (Rackspace)
-gem 'fog-rackspace'
-gem 'rake'
+gem 'fog', '~> 1.38'
 gem 'carrierwave'
 
 # Use sqlite3 as the database for Active Record
