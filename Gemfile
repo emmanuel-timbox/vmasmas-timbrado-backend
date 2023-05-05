@@ -10,7 +10,8 @@ gem "rails", "~> 7.0.2", ">= 7.0.2.4"
 gem "sprockets-rails"
 
 #libreria propia de signer, donde se le agregaron metodos para el uso de ws-conversation
-gem 'signer'
+gem 'signer', '~> 1.4', '>= 1.4.2'
+
 # Libreria para conexiones con servicios (Rackspace)
 gem 'fog-rackspace'
 gem 'rake'
