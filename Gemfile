@@ -54,7 +54,7 @@ gem "mysql2", "~> 0.5"
 
 gem 'figaro'
 
-gem 'rack-cors', require: 'rack/cors'
+# gem 'rack-cors', require: 'rack/cors'
 
 gem 'symmetric-encryption'
 # Use Sass to process CSS
@@ -69,9 +69,6 @@ gem 'bcrypt'
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
-
-# Symmetric Encryption gem:
-gem 'symmetric-encryption'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
