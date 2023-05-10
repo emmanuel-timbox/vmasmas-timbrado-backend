@@ -56,7 +56,8 @@ gem 'figaro'
 
 # gem 'rack-cors', require: 'rack/cors'
 
-gem 'symmetric-encryption', '~> 3.8'
+gem 'symmetric-encryption', '~> 3.8', '>= 3.8.2'
+gem 'attr_encrypted'
 # Use Sass to process CSS
 # gem "sassc-rails"
 
