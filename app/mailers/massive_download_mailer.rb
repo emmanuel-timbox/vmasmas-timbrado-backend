@@ -17,6 +17,4 @@ class MassiveDownloadMailer < ApplicationMailer
     end
   end
 
-
-
 end

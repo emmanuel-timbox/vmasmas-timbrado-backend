@@ -43,7 +43,7 @@ class MassiveController < ApplicationController
           data: data_formatter(massive_download_solicitud[:data])
         }
       else
-        result = { message: 'Su solicitud no ha sido Aceptada', code: 500 }
+        result = { message: massive_download_solicitud[:message], code: 500 }
       end
 
       render json: result
